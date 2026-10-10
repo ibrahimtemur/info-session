@@ -277,3 +277,53 @@ export function assignAll(people, { swapIterations = 400, seed = 42 } = {}) {
 export function totalScore(state) {
   return state.tables.reduce((s, t) => s + tableScore(t.members), 0)
 }
+
+// ---------------------------------------------------------------------------
+// Admin işlemleri (taşıma, yeniden dağıtma)
+// ---------------------------------------------------------------------------
+
+/** Masalardaki + bekleme listesindeki herkes. */
+export function allMembers(state) {
+  return [...state.tables.flatMap((t) => t.members), ...state.waitlist]
+}
+
+/** Admin işlemi başarısız olursa fırlatılır; code: PARTICIPANT_NOT_FOUND | NO_SUCH_TABLE | TABLE_FULL */
+export class SeatingError extends Error {
+  constructor(code, message) {
+    super(message)
+    this.name = 'SeatingError'
+    this.code = code
+  }
+}
+
+/**
+ * Bir kişiyi başka masaya taşır (bekleme listesindeki kişi de masaya alınabilir).
+ * Kapasite kontrolü burada yapılır; state değişmez, yeni state döner.
+ */
+export function moveParticipant(state, personId, toTableId) {
+  const from = state.tables.find((t) => t.members.some((m) => m.id === personId))
+  const person = from ? from.members.find((m) => m.id === personId) : state.waitlist.find((m) => m.id === personId)
+  if (!person) throw new SeatingError('PARTICIPANT_NOT_FOUND', 'Katılımcı bulunamadı')
+  const to = state.tables.find((t) => t.id === toTableId)
+  if (!to) throw new SeatingError('NO_SUCH_TABLE', 'Böyle bir masa yok')
+  if (from && from.id === to.id) return state
+  if (to.members.length >= TABLE_CAPACITY) throw new SeatingError('TABLE_FULL', `Masa ${to.id} dolu`)
+  return {
+    tables: state.tables.map((t) => {
+      if (t.id === to.id) return { ...t, members: [...t.members, person] }
+      if (from && t.id === from.id) return { ...t, members: t.members.filter((m) => m.id !== personId) }
+      return t
+    }),
+    waitlist: state.waitlist.filter((m) => m.id !== personId),
+  }
+}
+
+/**
+ * Herkesi (masadakiler + bekleyenler) assignAll ile baştan dağıtır.
+ * order: (a, b) => sayı — kimin önce/ sonra sayılacağı (ör. katılım zamanı); bekleme listesi sırasını belirler.
+ */
+export function rebalance(state, { order, ...options } = {}) {
+  const people = allMembers(state)
+  if (order) people.sort(order)
+  return assignAll(people, options)
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { dev, getResult } from './api/client.js'
 import OfflineBanner from './components/OfflineBanner.jsx'
@@ -11,7 +11,22 @@ import Result from './pages/Result.jsx'
 // Geliştirici araçları sadece ?dev=1 ile ve mock modunda görünür
 const SHOW_DEV = dev && new URLSearchParams(location.search).get('dev') === '1'
 
+const Admin = lazy(() => import('./pages/Admin.jsx'))
+const isAdminRoute = () => location.pathname.replace(/\/+$/, '') === '/admin'
+
+/** Basit yol ayrımı: /admin -> yönetim paneli, diğer her şey katılımcı akışı. */
 export default function App() {
+  if (isAdminRoute()) {
+    return (
+      <Suspense fallback={<p className="mt-24 text-center text-xl font-extrabold">Yükleniyor… ☕</p>}>
+        <Admin />
+      </Suspense>
+    )
+  }
+  return <Participant />
+}
+
+function Participant() {
   const [step, setStep] = useState('loading')
   const [name, setName] = useState('')
   const [result, setResult] = useState(null)
