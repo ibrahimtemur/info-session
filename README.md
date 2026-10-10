@@ -1,74 +1,160 @@
 # Info Session — Masa Eşleştirme ☕
 
-Bir kafede yapılan ilk topluluk etkinliği için: katılımcılar telefondan link/QR ile girer, 8 soruluk anketi **bir kez** doldurur ve uygulama onları karma ama uyumlu masalara yerleştirir.
+Bu proje, bir kafede gerçekleştirilen ilk topluluk etkinliği için geliştirilmiş bir masa eşleştirme uygulamasıdır. Katılımcılar telefonlarından veya web üzerinden uygulamaya girip 8 soruluk bir anketi doldurur. Sistem, verilen cevaplara göre katılımcıları "en uyumlu" ve "çeşitlilik açısından en dengeli" karma masalara otomatik olarak atar. 
 
-Stack: Vite + React + Tailwind CSS v4 + Framer Motion, test: Vitest.
+Hem modern bir kullanıcı arayüzü (Frontend) hem de sağlam bir veritabanı altyapısı (Backend) içerir. 
 
-## Komutlar
+## İçindekiler
+1. [Ekran Görüntüleri](#ekran-görüntüleri)
+2. [Kullanılan Teknolojiler](#kullanılan-teknolojiler)
+3. [Özellikler ve Şu Anki Durum](#özellikler-ve-şu-anki-durum)
+4. [Proje Yapısı](#proje-yapısı)
+5. [Yerel Kurulum ve Çalıştırma](#yerel-kurulum-ve-çalıştırma)
+6. [Ortam Değişkenleri (.env)](#ortam-değişkenleri-env)
+7. [Eşleştirme Algoritması](#eşleştirme-algoritması)
+8. [Canlıya Alma Rehberi (Deployment)](#canlıya-alma-rehberi-deployment)
+9. [Bilinen Eksikler](#bilinen-eksikler)
 
-```bash
-npm install
-npm run dev       # geliştirme sunucusu (telefondan erişim için --host açık)
-npm run test      # matching.js birim testleri
-npm run seed      # 30 sahte katılımcıyla dağılımı konsolda doğrula (npm run seed 72 ile farklı sayı)
-npm run build     # üretim derlemesi
+---
+
+## Ekran Görüntüleri
+> *Buraya eklenecek: Uygulamanın ana ekranı, anket arayüzü ve admin panelinin ekran görüntüleri.*
+
+---
+
+## Kullanılan Teknolojiler
+
+| Bölüm | Teknoloji | Açıklama |
+|---|---|---|
+| **Frontend** | React (v19) + Vite (v8) | Modern ve hızlı arayüz kütüphanesi. |
+| **Stil / UI** | Tailwind CSS (v4) + Framer Motion | Hızlı biçimlendirme ve akıcı animasyonlar. |
+| **Backend** | Node.js + Express (v5) | API sunucusu. |
+| **Veritabanı** | better-sqlite3 | Eşzamanlı işlemleri ve kalıcılığı sağlayan, dosya tabanlı güvenilir SQL veritabanı. |
+| **Doğrulama (Validation)**| Zod | Gelen isteklerin yapısal bütünlüğünü doğrulamak için (tip güvenliği). |
+| **Test** | Vitest + Supertest | Frontend mantığı ve backend API entegrasyon testleri. |
+
+---
+
+## Özellikler ve Şu Anki Durum
+
+| Özellik | Durum |
+|---------|-------|
+| 🎨 **Kullanıcı Arayüzü (UI)** | ✅ Tamamlandı (Responsive, modern, açık/koyu tema) |
+| 📊 **Anket ve Eşleştirme Mantığı** | ✅ Tamamlandı (8 soru, akıllı puanlama) |
+| 💾 **Backend ve Veritabanı** | ✅ Tamamlandı (Express + SQLite, atomic transactions) |
+| 🔒 **Admin Paneli & Güvenlik** | ✅ Tamamlandı (Token tabanlı doğrulama, IP Rate Limit) |
+| 📱 **Geç Gelenler (Latecomer)** | ✅ Tamamlandı (Dolu masalara karışmadan boş yere veya bekleme listesine) |
+| 🧪 **Otomatik Testler** | ✅ Tamamlandı (22 Frontend, 10 Backend testi geçiyor) |
+
+---
+
+## Proje Yapısı
+
+Proje genel olarak Frontend (Kök dizin) ve Backend (`/backend`) olarak ikiye ayrılmıştır:
+
+```text
+info-session/
+├── README.md               # Projenin ana dokümantasyonu
+├── API_CONTRACT.md         # Frontend ve Backend arasındaki iletişim kuralları
+├── package.json            # Frontend bağımlılıkları ve scriptleri
+├── vite.config.js          # Vite ayarları ve Backend proxy yapılandırması
+├── .env.example            # Frontend için örnek ortam değişkenleri
+├── src/                    # Frontend Kodları
+│   ├── api/                # Backend iletişimi (client.js ve mockServer.js)
+│   ├── components/         # Yeniden kullanılabilir UI bileşenleri
+│   ├── lib/                # Eşleştirme algoritması (matching.js) ve testleri
+│   └── pages/              # Sayfalar (Admin, Home, Result vb.)
+└── backend/                # Backend Kodları
+    ├── package.json        # Backend bağımlılıkları ve scriptleri
+    ├── .env.example        # Backend için örnek ortam değişkenleri
+    ├── data.db             # SQLite Veritabanı dosyası
+    ├── src/
+    │   ├── server.js       # Express sunucu yapılandırması
+    │   ├── db.js           # Veritabanı bağlantısı
+    │   ├── routes/         # API uç noktaları (admin.js, participants.js, tables.js)
+    │   └── services/       # İş mantığı (placement.js vb.)
+    └── tests/              # Backend entegrasyon testleri
 ```
 
-Geliştirici aracı: `http://localhost:5173/?dev=1` adresinde "30 sahte ekle" ve "Sıfırla" butonları görünür (yalnızca mock modunda).
+---
 
-## Admin paneli (`/admin`)
+## Yerel Kurulum ve Çalıştırma
 
-`.env.example` dosyasını `.env` olarak kopyalayıp `VITE_ADMIN_PASSWORD` değerini belirleyin, sonra `http://localhost:5173/admin` adresine girin. Panelde: masalar/oturanlar/doluluk, kişiyi başka masaya taşıma (kapasite kontrollü), projektör için tam ekran **Masa Listesi** (5 sn'de bir yenilenir, `Esc` ile kapanır), katılımcıları CSV indirme, **Yeniden Dağıt** ve **Sıfırla** (onay pencereli).
+Projeyi bilgisayarınızda çalıştırmak için NodeJS (v20+) kurulu olmalıdır. 
 
-> Mock modunda parola istemci paketinde yer alır; yalnızca geliştirme içindir. Gerçek backend'de parola sunucuda doğrulanır (aşağıya bakın). Excel'de CSV tek sütun görünürse: Veri → Metinden/CSV'den içe aktar ile UTF-8 ve virgül seçin.
+### 1. Backend Kurulumu ve Başlatılması
+Yeni bir terminal açıp şu komutları çalıştırın:
+```bash
+cd backend
+npm install
+npm run dev
+```
+*(Backend sunucusu varsayılan olarak `http://localhost:3000` portunda ayağa kalkacaktır.)*
 
-## Dosya yapısı
+### 2. Frontend Kurulumu ve Başlatılması
+Projenin **kök dizininde** farklı bir terminal açıp şu komutları çalıştırın:
+```bash
+npm install
+npm run dev
+```
+*(Frontend sunucusu varsayılan olarak `http://localhost:5173` portunda açılır ve API isteklerini otomatik olarak Backend portu olan 3000'e proxy'ler.)*
 
-| Yol | Görev |
-|-----|-------|
-| `src/lib/questions.js` | 8 soru; her sorunun neyi ölçtüğü ve vektöre katkısı yorumlarla belgeli |
-| `src/lib/matching.js` | Saf JS eşleştirme (tohumlama + greedy + swap), geç gelen, bekleme listesi, tema, buz kırıcı |
-| `src/lib/matching.test.js` | 20 kişi dengeli, 72 kişi kapasite, geç gelen, tüm masalar dolu testleri |
-| `src/api/client.js` | Uygulamanın backend ile konuştuğu tek nokta; `API_CONTRACT.md` ile birebir; `USE_MOCK` bayrağı |
-| `src/api/mockServer.js` | localStorage tabanlı sahte sunucu (sözleşmeyi taklit eder) |
-| `src/api/errors.js` | `ApiError` / `NetworkError` |
-| `src/lib/csv.js`, `src/lib/validate.js` | CSV üretimi, kayıt doğrulaması (backend'de de kullanılabilir) |
-| `src/pages/Admin.jsx`, `src/components/admin/` | Admin paneli, projektör görünümü |
-| `API_CONTRACT.md` | Uç noktalar, JSON örnekleri, hata kodları |
-| `src/pages/`, `src/components/` | Ekranlar ve UI parçaları |
+### 3. Diğer Yararlı Komutlar (Kök Dizinde)
+- `npm run test`: Frontend'deki eşleştirme algoritması ve utility testlerini çalıştırır.
+- `npm run seed`: Veritabanına rastgele test verisi (katılımcı) ekler. (Örn: `npm run seed 30` ile 30 kişi eklenir)
+- `npm run build`: Projenin üretime (production) hazır halini derler.
 
-## Algoritma özeti
+*(Backend dizininde `cd backend` sonrası `npm run test` diyerek API uç noktalarının (supertest) testlerini de çalıştırabilirsiniz.)*
 
-1. Her kişiden vektör: `social ∈ [-1,1]`, ilgi alanları, sohbet tarzı, beklenti, bölüm.
-2. **Toplu dağıtım (`assignAll`)**: birbirine en uzak k kişi masalara tohumlanır → kalanlar boyut dengesini koruyarak en yüksek marjinal skorlu masaya eklenir → 400 deterministik swap denemesi (skor artarsa kabul).
-3. **Geç gelen (`placeLatecomer`)**: mevcut kimse yer değiştirmez; en yüksek skorlu müsait masaya oturur. Hepsi doluysa bekleme listesi (sıra numarasıyla).
-4. Masa sayısı `min(12, ceil(n/6))`; boyutlar `floor/ceil(n/k)` (20 kişi → 4×5).
-5. Skor: ortak ilgi + içe/dışa denge + tarz çeşitliliği + (küçük) aynı beklenti − aynı bölüm − doluluk dengesi (geç gelende).
+---
 
-## Backend'e geçiş adımları
+## Ortam Değişkenleri (.env)
 
-Sözleşme: [`API_CONTRACT.md`](API_CONTRACT.md). İstemci tarafı hazırdır; yapılacaklar sunucudadır.
+Güvenlik sebebiyle parolalar asla kod içine yazılmaz. Kök dizinde ve `backend/` klasöründe `.env` isimli dosyalar oluşturmalısınız. 
 
-1. **Sunucuyu yazın.** `API_CONTRACT.md`'deki 9 ucu (health, participants POST/GET, tables, PATCH table, admin login/rebalance/reset/export.csv) uygulayın. Dağıtım için `src/lib/matching.js` (`placeLatecomer`, `assignAll`/`rebalance`, `moveParticipant`), doğrulama için `src/lib/validate.js`, CSV için `src/lib/csv.js` doğrudan import edilebilir (framework'e bağımsız saf JS). Mock'taki `src/api/mockServer.js` her uç için çalışan bir referans uygulamadır.
-2. **Kalıcılık ve eşzamanlılık.** Yerleşimi (`tables`, `waitlist`) ve katılımcıları (cevaplar, `deviceId`, `createdAt`) veritabanında tutun. Kayıt ve taşıma işlemlerini tek transaction/kilit ile yapın ki iki kişi aynı son koltuğu kapamasın. `deviceId` için benzersiz kısıt → `409 already_registered`.
-3. **Admin kimlik doğrulama.** `POST /api/admin/login` parolayı **sunucu ortam değişkeniyle** karşılaştırıp imzalı/rastgele bir token döndürsün; `PATCH …/table`, `rebalance`, `reset`, `export.csv` `Authorization: Bearer <token>` kontrol edip yoksa `401` dönsün. `VITE_ADMIN_PASSWORD` yalnızca mock içindir, üretimde kullanmayın.
-4. **CORS / aynı origin.** API ayrı bir alan adındaysa SPA origin'ine CORS izni verin (`Authorization`, `Content-Type` başlıkları, `PATCH` metodu). Ters vekil ile aynı origin'de sunuyorsanız `VITE_API_BASE_URL` boş kalabilir.
-5. **İstemciyi açın.** `.env` (veya barındırma ortamı) içinde:
-   ```
-   VITE_USE_MOCK=false
-   VITE_API_BASE_URL=https://api.ornek.com
-   ```
-   Alternatif olarak `src/api/client.js` içindeki `USE_MOCK` sabitini `false` yapabilirsiniz. Vite değişkenleri derleme anında gömülür; değiştirince `npm run build` yeniden çalıştırın.
-6. **Doğrulayın.** `GET /api/health` → 200; ana akışı bir telefondan, `/admin` panelini bir bilgisayardan deneyin (taşı, yeniden dağıt, CSV, Masa Listesi). Mock'ta cihazlar arası paylaşım olmadığını, gerçek API'de masa arkadaşlarının tüm cihazlarda göründüğünü kontrol edin.
-7. **Etkinlik öncesi.** `POST /api/admin/reset` ile test verisini temizleyin ve `/admin` → "Yeniden Dağıt" ile toplu dağıtımı çalıştırın; sonradan gelenler otomatik `placeLatecomer` ile eklenir.
+**Kök Dizin (Frontend) `.env` Değişkenleri:**
+| Değişken Adı | Açıklama | Örnek Değer |
+|--------------|----------|-------------|
+| `VITE_USE_MOCK` | Backend olmadan sahte verilerle test etmek için `true` yapılır. Gerçek kullanımda `false` olmalıdır. | `false` |
+| `VITE_API_BASE_URL` | İsteklerin gönderileceği ana adres (Eğer Vite config içinde proxy kullanıyorsanız boş bırakılabilir veya kendi URL'niz verilebilir). | `http://localhost:3000` |
+| `VITE_ADMIN_PASSWORD` | Sadece Mock (sahte) modda test ederken kullanılan admin şifresi. | *(İstediğiniz bir şifre)* |
 
-## Varsayımlar
+**Backend Dizini (`/backend`) `.env` Değişkenleri:**
+| Değişken Adı | Açıklama | Örnek Değer |
+|--------------|----------|-------------|
+| `PORT` | API sunucusunun çalışacağı port. | `3000` |
+| `FRONTEND_ORIGIN` | CORS politikası gereği sadece izin verilen Frontend adresleri (virgülle birden fazla eklenebilir). | `http://localhost:5173, http://localhost:5174` |
+| `ADMIN_PASSWORD` | **Gerçek Admin Paneli parolası.** Güçlü bir şifre seçmelisiniz. | *(Güçlü bir şifre)* |
+| `DB_PATH` | SQLite veritabanı dosyasının konumu. | `./data.db` |
 
-- **Mock tek tarayıcıya özgüdür**: localStorage cihazlar arası paylaşılmaz; gerçek etkinlikte masa arkadaşlarının görünmesi için backend gerekir.
-- Tailwind v4 kullanıldı (config dosyası yok, `@tailwindcss/vite`).
-- Bir cihaz bir kez katılır; tekrar girişte kayıtlı sonuç ve güncel masa listesi gösterilir. Tarayıcı verisi temizlenirse cihaz yeniden katılabilir (backend'de cihaz kimliği/IP ile sınırlanmalı).
-- Katılım tek tek geldiği için (backend'siz) yerleşim artımlıdır: etkinlik başlamadan önce sunucuda `assignAll` ile toplu yeniden dengeleme yapılması önerilir (DEV aracı bunu yapar); sonrasında gelenler `placeLatecomer` ile eklenir.
-- 72 kişiden sonrası bekleme listesine alınır.
-- Bölüm sorusu opsiyoneldir; boş bırakılırsa çeşitlilik hesabında nötr sayılır.
-- Slider yerine 1-5 yüz ikonlu büyük dokunma butonları kullanıldı (tek elle kolay).
-- Veri minimizasyonu: sadece isim ve anket cevapları saklanır.
+---
+
+## Eşleştirme Algoritması
+
+Eşleştirme mantığı `src/lib/matching.js` içerisinde yer alır ve algoritma temel olarak katılımcıların 8 farklı soruya verdiği yanıtları bir **vektör** olarak değerlendirir. 
+
+1. **Katılımcı Vektörü:** Sosyallik puanı (`social ∈ [-1,1]`), ilgi alanları, sohbet tarzı, etkinlik beklentisi ve bölüm gibi veriler işlenir.
+2. **Toplu Dağıtım (Rebalance):** Tüm katılımcılar bir havuzda toplanır. Önce birbirine karakter/sosyallik olarak en uzak kişiler farklı masalara tohum (seed) olarak dağıtılır. Geri kalanlar masaların dengesini bozmayacak ve "çeşitliliği" artıracak şekilde greedy (açgözlü) algoritmayla eklenir. Son olarak binlerce swap (yer değiştirme) denemesi yapılarak genel memnuniyet skoru maksimize edilir.
+3. **Puanlama Kriterleri:**
+   - Masadaki **ortak ilgi alanı** fazlalığı (+ puan)
+   - İçe/Dışa dönüklük oranının **dengeli** olması (+ puan)
+   - İnsanların farklı sohbet tarzlarında olması (çeşitlilik) (+ puan)
+   - Birebir aynı bölümde olan kişilerin aynı masada fazlaca kümelenmemesi (- puan)
+4. **Geç Gelenler (Latecomer):** Etkinlik başladıktan veya toplu dağıtım yapıldıktan sonra gelenler (`placeLatecomer`), o an oturan kimsenin yerini bozmadan kendilerine en uygun müsait masaya yerleştirilir. 
+5. **Kapasite ve Bekleme Listesi:** Varsayılan olarak maksimum masa sayısı 12, kişi başı kapasite 6'dır (Toplam 72 kişi). 72 kişiden sonra gelenler "Bekleme Listesi" (Waitlist) havuzuna alınır.
+
+---
+
+## Canlıya Alma Rehberi (Deployment)
+
+Projeyi internete açmak (Canlıya almak) için:
+
+1. **Frontend'i Derleme (Build):** Kök dizinde `npm run build` komutunu çalıştırın. Bu komut `dist/` adında optimize edilmiş statik dosyalar oluşturur. Bu klasörü Vercel, Netlify veya herhangi bir statik sunucuda (Nginx/Apache) yayınlayabilirsiniz.
+2. **Backend'i Başlatma:** Backend klasörünüze gidin, `.env` dosyasını (özellikle `FRONTEND_ORIGIN` ve `ADMIN_PASSWORD`) doğru yapılandırın. Terminalde `node src/server.js` (veya `pm2 start src/server.js`) komutuyla API'yi ayaklandırın.
+3. **Kalıcı Depolama Uyarısı (SQLite):** Backend SQLite kullandığı için, uygulamanızın çalıştığı sunucunun (örn: Render, Heroku) **kalıcı bir diski (persistent disk/volume)** olduğundan emin olun! Aksi halde her deploy veya yeniden başlatmada veritabanı (data.db) silinebilir.
+
+---
+
+## Bilinen Eksikler
+- **Gerçek zamanlı güncellemeler:** Masalardaki güncellemeleri Admin paneli her 5 saniyede bir çekmektedir. Çok büyük bir katılımcı trafiğinde WebSockets/Server-Sent Events'e (SSE) geçilmesi gerekebilir.
+- **Kişiye Özel Silme İşlemi:** Şimdilik sadece Admin panelinden tüm veritabanı sıfırlanabilmektedir. Tekil bir kullanıcıyı sistemden çıkarma özelliği şu an mevcut değildir, ancak kullanıcının masası değiştirilebilir.

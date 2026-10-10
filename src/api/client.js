@@ -22,7 +22,7 @@ import { ApiError, NetworkError } from './errors.js'
 export { ApiError, NetworkError }
 
 // VITE_USE_MOCK=false (veya bu satırı false yaparak) gerçek API'ye geçilir.
-export const USE_MOCK = (import.meta.env.VITE_USE_MOCK ?? 'true') !== 'false'
+export const USE_MOCK = (import.meta.env.VITE_USE_MOCK ?? 'false') !== 'false'
 const BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/+$/, '')
 
 const DEVICE_KEY = 'infosession:device'
