@@ -228,7 +228,7 @@ function Dashboard({ onLogout }) {
       </section>
 
       <section aria-label="Masalar" className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-        {data.tables.map((t) => (
+        {[...data.tables].sort((a, b) => a.number - b.number).map((t) => (
           <TableCard
             key={t.number}
             table={t}

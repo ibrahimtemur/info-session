@@ -26,13 +26,15 @@ router.post('/rebalance', async (req, res, next) => {
   try {
     const newState = await rebalanceAll();
     
-    const tables = newState.tables.map(t => ({
-      number: t.id,
-      capacity: TABLE_CAPACITY,
-      count: t.members.length,
-      theme: tableTheme(t),
-      members: t.members.map(m => ({ id: m.id, name: m.name }))
-    }));
+    const tables = newState.tables
+      .map(t => ({
+        number: t.id,
+        capacity: TABLE_CAPACITY,
+        count: t.members.length,
+        theme: tableTheme(t),
+        members: t.members.map(m => ({ id: m.id, name: m.name }))
+      }))
+      .sort((a, b) => a.number - b.number);
     
     const waitlist = newState.waitlist.map((m, i) => ({
       id: m.id,

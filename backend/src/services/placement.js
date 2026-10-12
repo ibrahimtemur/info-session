@@ -41,7 +41,7 @@ export async function getActiveState(q = query) {
   }
 
   return {
-    tables: Array.from(tablesMap.values()),
+    tables: Array.from(tablesMap.values()).sort((a, b) => a.id - b.id),
     waitlist: waitlist,
     waiting: waiting
   };

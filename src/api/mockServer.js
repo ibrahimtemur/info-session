@@ -102,13 +102,15 @@ function tablesView(db) {
   const seated = db.tables.reduce((s, t) => s + t.members.length, 0)
   const waiting = db.waiting ?? []
   return {
-    tables: db.tables.map((t) => ({
-      number: t.id,
-      capacity: TABLE_CAPACITY,
-      count: t.members.length,
-      theme: tableTheme(t),
-      members: t.members.map(({ id, name }) => ({ id, name })),
-    })),
+    tables: [...db.tables]
+      .sort((a, b) => a.id - b.id)
+      .map((t) => ({
+        number: t.id,
+        capacity: TABLE_CAPACITY,
+        count: t.members.length,
+        theme: tableTheme(t),
+        members: t.members.map(({ id, name }) => ({ id, name })),
+      })),
     waitlist: db.waitlist.map((m, i) => ({ id: m.id, name: m.name, position: i + 1 })),
     waiting: waiting.map((m) => ({ id: m.id, name: m.name })),
     totals: {

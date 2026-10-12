@@ -9,7 +9,7 @@ export default function MoveDialog({ member, currentTable, tables, busy, onPick,
         {currentTable ? `Şu an: Masa ${currentTable}` : 'Şu an: Bekleme listesinde'} · Hedef masayı seç
       </p>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        {tables.map((t) => {
+        {[...tables].sort((a, b) => a.number - b.number).map((t) => {
           const full = t.count >= t.capacity
           const here = t.number === currentTable
           return (

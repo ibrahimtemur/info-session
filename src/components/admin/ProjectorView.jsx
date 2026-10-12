@@ -71,7 +71,7 @@ export default function ProjectorView({ initial, onExit }) {
       </header>
 
       <div className="grid gap-[1.5vmin] [grid-template-columns:repeat(auto-fill,minmax(min(100%,20rem),1fr))]">
-        {data.tables.map((t) => (
+        {[...data.tables].sort((a, b) => a.number - b.number).map((t) => (
           <section key={t.number} className="rounded-3xl border-2 border-white/10 bg-white/[0.07] p-[2vmin]" data-testid={`projector-table-${t.number}`}>
             <div className="flex items-baseline justify-between gap-2">
               <h2 className="text-[clamp(1.6rem,3.6vmin,3.4rem)] font-black text-mint">Masa {t.number}</h2>
