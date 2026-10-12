@@ -3,8 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-// Yerelde backend/.env okunur; Vercel'de dosya yoktur ve ortam değişkenleri panelinden gelir.
-dotenv.config({ path: path.join(path.dirname(fileURLToPath(import.meta.url)), '../.env') });
+// Yerelde backend/.env okunur; Vercel ortamında ortam değişkenleri panelinden gelir.
+if (!process.env.VERCEL) {
+  dotenv.config({ path: path.join(path.dirname(fileURLToPath(import.meta.url)), '../.env') });
+}
 
 import participantsRouter from './routes/participants.js';
 import tablesRouter from './routes/tables.js';

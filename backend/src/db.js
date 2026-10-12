@@ -26,9 +26,24 @@ const SCHEMA = `
 
 const LOCK_ID = 727001;
 
+function normalizeDatabaseUrl(rawUrl) {
+  try {
+    const parsed = new URL(rawUrl);
+    const sslmode = parsed.searchParams.get('sslmode');
+    if (sslmode === 'require' || sslmode === 'prefer' || sslmode === 'verify-ca') {
+      parsed.searchParams.set('sslmode', 'verify-full');
+      return parsed.toString();
+    }
+    return rawUrl;
+  } catch {
+    return rawUrl.replace(/([?&])sslmode=(?:require|prefer|verify-ca)(&|$)/, '$1sslmode=verify-full$2');
+  }
+}
+
 async function createPgImpl() {
-  const url = process.env.DATABASE_URL;
-  if (!url) throw new Error('DATABASE_URL tanımlı değil');
+  const rawUrl = process.env.DATABASE_URL;
+  if (!rawUrl) throw new Error('DATABASE_URL tanımlı değil');
+  const url = normalizeDatabaseUrl(rawUrl);
   const pool = new pg.Pool({ connectionString: url, max: 1 });
   return {
     query: (text, params) => pool.query(text, params),
