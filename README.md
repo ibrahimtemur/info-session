@@ -148,19 +148,19 @@ Güvenlik sebebiyle parolalar asla kod içine yazılmaz. Yerelde kök dizinde `.
 
 ---
 
-## Eşleştirme Algoritması
+## Eşleştirme Algoritması ve Etkinlik Akışı
 
-Eşleştirme mantığı `src/lib/matching.js` içerisinde yer alır ve algoritma temel olarak katılımcıların 8 farklı soruya verdiği yanıtları bir **vektör** olarak değerlendirir. 
+Eşleştirme mantığı `src/lib/matching.js` içerisinde yer alır ve algoritma katılımcıların 8 farklı soruya verdiği yanıtları bir **vektör** olarak değerlendirir.
 
 1. **Katılımcı Vektörü:** Sosyallik puanı (`social ∈ [-1,1]`), ilgi alanları, sohbet tarzı, etkinlik beklentisi ve bölüm gibi veriler işlenir.
-2. **Toplu Dağıtım (Rebalance):** Tüm katılımcılar bir havuzda toplanır. Önce birbirine karakter/sosyallik olarak en uzak kişiler farklı masalara tohum (seed) olarak dağıtılır. Geri kalanlar masaların dengesini bozmayacak ve "çeşitliliği" artıracak şekilde greedy (açgözlü) algoritmayla eklenir. Son olarak binlerce swap (yer değiştirme) denemesi yapılarak genel memnuniyet skoru maksimize edilir.
+2. **Bekleme Havuzu ve Toplu Dağıtım (Batch Matching):** Katılımcılar testi çözdüklerinde önce güvenli bir bekleme havuzuna (`waiting`) alınır ve ekranlarında *"Cevapların kaydedildi, masalar birazdan dağıtılacak"* bilgisi yer alır. Admin panelinden **"✨ Masaları Dağıt"** butonuna basıldığında, havuzdaki tüm katılımcılar tek seferde algoritmaya girer. Birbirine en uzak profiller farklı masalara tohum (seed) olarak dağıtılır, ardından greedy yerleştirme ve yüzlerce swap (yerel iyileştirme) adımıyla dengeli masalar kurulur. Katılımcıların ekranları otomatik polling ile anında güncellenir ve masalarını gösterir.
 3. **Puanlama Kriterleri:**
    - Masadaki **ortak ilgi alanı** fazlalığı (+ puan)
    - İçe/Dışa dönüklük oranının **dengeli** olması (+ puan)
    - İnsanların farklı sohbet tarzlarında olması (çeşitlilik) (+ puan)
    - Birebir aynı bölümde olan kişilerin aynı masada fazlaca kümelenmemesi (- puan)
-4. **Geç Gelenler (Latecomer):** Etkinlik başladıktan veya toplu dağıtım yapıldıktan sonra gelenler (`placeLatecomer`), o an oturan kimsenin yerini bozmadan kendilerine en uygun müsait masaya yerleştirilir. 
-5. **Kapasite ve Bekleme Listesi:** Varsayılan olarak maksimum masa sayısı 12, kişi başı kapasite 6'dır (Toplam 72 kişi). 72 kişiden sonra gelenler "Bekleme Listesi" (Waitlist) havuzuna alınır.
+4. **Geç Gelenler (Latecomer):** İlk toplu dağıtımdan sonra gelen katılımcılar (`placeLatecomer`), mevcut oturan kimsenin yerini değiştirmeden kendilerine karakter ve ilgi alanı bakımından en uyumlu boş masaya anında yerleştirilir.
+5. **Kapasite ve Bekleme Listesi:** Varsayılan olarak maksimum masa sayısı 12, masa başı kapasite 6'dır (Toplam 72 kişi). 72 kişiden sonra gelenler "Bekleme Listesi" (Waitlist) sırasına alınır.
 
 ---
 

@@ -87,7 +87,7 @@ function Participant() {
               }}
             />
           )}
-          {step === 'result' && result && <Result result={result} />}
+          {step === 'result' && result && <Result result={result} onResultUpdate={setResult} />}
         </motion.main>
       </AnimatePresence>
 

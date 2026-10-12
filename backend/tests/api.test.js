@@ -33,16 +33,16 @@ describe('Info Session API', () => {
 
   let participantId;
 
-  it('POST /api/participants should create a participant', async () => {
+  it('POST /api/participants should create a participant in waiting status before distribution', async () => {
     const res = await request(app).post('/api/participants').send({
       name: 'Test User',
       deviceId: 'test-device-1',
       answers: validAnswers
     });
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(200);
     expect(res.body.name).toBe('Test User');
-    expect(res.body.status).toBe('seated');
-    expect(res.body.tableNumber).toBeTypeOf('number');
+    expect(res.body.status).toBe('waiting');
+    expect(res.body.tableNumber).toBeNull();
     participantId = res.body.id;
   });
 
@@ -57,11 +57,11 @@ describe('Info Session API', () => {
     expect(res.body.error.details.participantId).toBe(participantId);
   });
 
-  it('GET /api/participants/:id should return participant', async () => {
+  it('GET /api/participants/:id should return waiting participant', async () => {
     const res = await request(app).get(`/api/participants/${participantId}`);
     expect(res.status).toBe(200);
     expect(res.body.id).toBe(participantId);
-    expect(res.body.status).toBe('seated');
+    expect(res.body.status).toBe('waiting');
   });
 
   let adminToken;
@@ -79,6 +79,32 @@ describe('Info Session API', () => {
       password: 'wrong'
     });
     expect(res.status).toBe(401);
+  });
+
+  it('POST /api/admin/rebalance should distribute waiting participants into tables', async () => {
+    const res = await request(app)
+      .post('/api/admin/rebalance')
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(res.status).toBe(200);
+    expect(res.body.totals.seated).toBe(1);
+    expect(res.body.totals.waiting).toBe(0);
+
+    // Now participant should be seated
+    const pRes = await request(app).get(`/api/participants/${participantId}`);
+    expect(pRes.status).toBe(200);
+    expect(pRes.body.status).toBe('seated');
+    expect(pRes.body.tableNumber).toBeTypeOf('number');
+  });
+
+  it('POST /api/participants after distribution should place latecomer into tables', async () => {
+    const res = await request(app).post('/api/participants').send({
+      name: 'Latecomer User',
+      deviceId: 'test-device-late',
+      answers: validAnswers
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.status).toBe('seated');
+    expect(res.body.tableNumber).toBeTypeOf('number');
   });
 
   it('GET /api/admin/export.csv should require auth', async () => {
@@ -130,7 +156,7 @@ describe('Info Session API', () => {
     expect(getRes.status).toBe(404);
   });
 
-  it('POST /api/participants race condition capacity test (50 parallel)', async () => {
+  it('POST /api/participants race condition capacity test (50 parallel + rebalance + 25 latecomers)', async () => {
     // Clear DB to test capacity
     await query('DELETE FROM participants');
 
@@ -146,17 +172,21 @@ describe('Info Session API', () => {
     }
     const responses = await Promise.all(reqs);
     
-    let seated = 0;
-    let waitlist = 0;
+    let waitingCount = 0;
     for (const r of responses) {
-      if (r.status === 201) seated++;
-      if (r.status === 200 && r.body.status === 'waitlist') waitlist++;
+      if (r.status === 200 && r.body.status === 'waiting') waitingCount++;
     }
-    
-    expect(seated).toBe(50);
-    expect(waitlist).toBe(0);
+    expect(waitingCount).toBe(50);
 
-    // Let's add 25 more to push it over 72
+    // Admin triggers distribution
+    const rebalanceRes = await request(app)
+      .post('/api/admin/rebalance')
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(rebalanceRes.status).toBe(200);
+    expect(rebalanceRes.body.totals.seated).toBe(50);
+    expect(rebalanceRes.body.totals.waiting).toBe(0);
+
+    // Now 25 latecomers arrive after distribution
     const reqs2 = [];
     for (let i = 50; i < 75; i++) {
       reqs2.push(
@@ -172,12 +202,12 @@ describe('Info Session API', () => {
     let seated2 = 0;
     let waitlist2 = 0;
     for (const r of responses2) {
-      if (r.status === 201) seated2++;
+      if (r.status === 201 && r.body.status === 'seated') seated2++;
       if (r.status === 200 && r.body.status === 'waitlist') waitlist2++;
     }
     
-    expect(seated2).toBe(22); // 72 - 50
-    expect(waitlist2).toBe(3); // 75 - 72
+    expect(seated2).toBe(22); // 72 - 50 = 22 available seats
+    expect(waitlist2).toBe(3); // 75 - 72 = 3 overflow to waitlist
 
     const tablesRes = await request(app).get('/api/tables');
     expect(tablesRes.status).toBe(200);

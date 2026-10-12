@@ -36,7 +36,8 @@ const delay = (ms = 400) => new Promise((r) => setTimeout(r, ms))
 function loadDb() {
   try {
     const d = JSON.parse(localStorage.getItem(DB_KEY))
-    if (d && Array.isArray(d.tables)) return { tables: d.tables, waitlist: d.waitlist ?? [], people: d.people ?? {} }
+    if (d && Array.isArray(d.tables))
+      return { tables: d.tables, waitlist: d.waitlist ?? [], waiting: d.waiting ?? [], people: d.people ?? {} }
   } catch {
     /* bozuk veri: sıfırdan başla */
   }
@@ -80,12 +81,26 @@ function participantView(db, id) {
       iceBreaker: null,
     }
   }
+  const waitingMember = db.waiting?.find((m) => m.id === id)
+  if (waitingMember) {
+    return {
+      id,
+      name: waitingMember.name,
+      status: 'waiting',
+      tableNumber: null,
+      tablemates: [],
+      theme: null,
+      iceBreaker: null,
+      waitlistPosition: null,
+    }
+  }
   return null
 }
 
 /** GET /api/tables gövdesi. */
 function tablesView(db) {
   const seated = db.tables.reduce((s, t) => s + t.members.length, 0)
+  const waiting = db.waiting ?? []
   return {
     tables: db.tables.map((t) => ({
       number: t.id,
@@ -95,10 +110,12 @@ function tablesView(db) {
       members: t.members.map(({ id, name }) => ({ id, name })),
     })),
     waitlist: db.waitlist.map((m, i) => ({ id: m.id, name: m.name, position: i + 1 })),
+    waiting: waiting.map((m) => ({ id: m.id, name: m.name })),
     totals: {
-      participants: seated + db.waitlist.length,
+      participants: seated + db.waitlist.length + waiting.length,
       seated,
       waitlisted: db.waitlist.length,
+      waiting: waiting.length,
       tableCount: db.tables.length,
       capacity: MAX_SEATS,
       occupancy: Math.round((seated / MAX_SEATS) * 1000) / 1000,
@@ -124,8 +141,21 @@ export async function createParticipant({ name, answers, deviceId } = {}) {
     }
   }
   const id = `u${Date.now().toString(36)}${Math.floor(Math.random() * 1296).toString(36)}`
+  const person = { id, name: cleanName, answers, deviceId, createdAt: Date.now() }
+
+  if (db.tables.length === 0) {
+    const vec = buildVector(answers)
+    const next = {
+      ...db,
+      waiting: [...(db.waiting ?? []), { id, name: cleanName, vec, answers }],
+      people: { ...db.people, [id]: person },
+    }
+    saveDb(next)
+    return participantView(next, id)
+  }
+
   const { state } = placeLatecomer(db, { id, name: cleanName, answers })
-  const next = { ...state, people: { ...db.people, [id]: { id, name: cleanName, answers, deviceId, createdAt: Date.now() } } }
+  const next = { ...state, people: { ...db.people, [id]: person } }
   saveDb(next)
   return participantView(next, id)
 }

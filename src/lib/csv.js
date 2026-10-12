@@ -40,6 +40,7 @@ export function buildParticipantsCsv(state, people = {}) {
   const rows = [
     ...state.tables.flatMap((t) => t.members.map((m) => toRow(m, 'seated', t.id, null))),
     ...state.waitlist.map((m, i) => toRow(m, 'waitlist', null, i + 1)),
+    ...(state.waiting ?? []).map((m) => toRow(m, 'waiting', null, null)),
   ]
   return toCsv(columns, rows)
 }

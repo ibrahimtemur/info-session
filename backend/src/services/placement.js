@@ -17,6 +17,7 @@ export async function getActiveState(q = query) {
 
   const tablesMap = new Map();
   const waitlist = [];
+  const waiting = [];
 
   for (const row of participants) {
     const member = {
@@ -34,12 +35,15 @@ export async function getActiveState(q = query) {
       tablesMap.get(row.table_number).members.push(member);
     } else if (row.status === 'waitlist') {
       waitlist.push(member);
+    } else if (row.status === 'waiting') {
+      waiting.push(member);
     }
   }
 
   return {
     tables: Array.from(tablesMap.values()),
-    waitlist: waitlist
+    waitlist: waitlist,
+    waiting: waiting
   };
 }
 
@@ -57,6 +61,18 @@ export function addParticipant(name, answers, deviceId) {
     const person = { id, name, answers, vec };
 
     const currentState = await getActiveState(q);
+
+    // Eğer henüz hiç masa oluşturulmamışsa (admin dağıtımı yapmadıysa), katılımcı havuzda bekler
+    if (currentState.tables.length === 0) {
+      await q(
+        `INSERT INTO participants (id, name, answers, feature_vector, table_number, device_id, status, waitlist_position)
+         VALUES ($1, $2, $3::jsonb, $4::jsonb, $5, $6, $7, $8)`,
+        [id, name, JSON.stringify(answers), JSON.stringify(vec), null, deviceId || null, 'waiting', null]
+      );
+      return id;
+    }
+
+    // Masalar dağıtılmışsa, geç gelen kişi olarak en uygun masaya yerleştir
     const { result } = placeLatecomer(currentState, person);
 
     const status = result.status;

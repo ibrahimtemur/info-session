@@ -162,23 +162,29 @@ function Dashboard({ onLogout }) {
       <section aria-label="Özet" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Katılımcı" value={totals.participants} />
         <Stat label="Masada" value={`${totals.seated} · ${totals.tableCount} masa`} />
-        <Stat label="Bekleme listesi" value={totals.waitlisted} />
-        <Stat label="Doluluk" value={`%${pct}`}>
-          <div
-            className="mt-2 h-2 overflow-hidden rounded-full bg-brand-100 dark:bg-white/10"
-            role="progressbar"
-            aria-valuenow={pct}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="Toplam doluluk"
-          >
-            <div className="h-full rounded-full bg-gradient-to-r from-brand-500 to-mint" style={{ width: `${pct}%` }} />
-          </div>
-          <p className="mt-1 text-xs font-bold opacity-60">
-            {totals.seated}/{totals.capacity} koltuk
-          </p>
-        </Stat>
+        <Stat label="Dağıtım Bekleyen" value={totals.waiting ?? 0} />
+        <Stat label="Bekleme Listesi" value={totals.waitlisted} />
       </section>
+
+      {(totals.waiting ?? 0) > 0 && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-brand-500/15 border border-brand-500/30 p-4 text-brand-900 dark:text-brand-100">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">⏳</span>
+            <div>
+              <p className="font-black text-base">{totals.waiting} katılımcı havuzda dağıtım bekliyor!</p>
+              <p className="text-xs font-bold opacity-80">Katılımcılar şu anda bekleme ekranında. Hazır olduğunda masaları dağıtabilirsin.</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className={`${btn.primary} !shadow-lg`}
+            onClick={() => setConfirm('rebalance')}
+            disabled={busy}
+          >
+            ✨ {data.tables.length === 0 ? 'Masaları Dağıt' : 'Dağıtımı Güncelle'} ({totals.waiting} kişi)
+          </button>
+        </div>
+      )}
 
       <section aria-label="İşlemler" className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
         <button id="admin-projector" type="button" className={btn.primary} onClick={() => setProjector(true)}>
@@ -190,11 +196,11 @@ function Dashboard({ onLogout }) {
         <button
           id="admin-rebalance"
           type="button"
-          className={btn.ghost}
+          className={data.tables.length === 0 ? btn.primary : (totals.waiting ?? 0) > 0 ? btn.primary : btn.ghost}
           onClick={() => setConfirm('rebalance')}
           disabled={busy || totals.participants === 0}
         >
-          🔀 Yeniden Dağıt
+          {data.tables.length === 0 ? '✨ Masaları Dağıt' : (totals.waiting ?? 0) > 0 ? `🔀 Dağıt (${totals.waiting} yeni)` : '🔀 Yeniden Dağıt'}
         </button>
         <button
           id="admin-reset"
@@ -221,7 +227,55 @@ function Dashboard({ onLogout }) {
         ))}
       </section>
       {data.tables.length === 0 && (
-        <p className="card mt-5 p-8 text-center text-lg font-extrabold opacity-80">Henüz katılımcı yok. İlk kayıt geldiğinde masalar burada görünür 🙂</p>
+        <div className="card mt-5 p-8 text-center">
+          {(totals.waiting ?? 0) > 0 ? (
+            <>
+              <div className="text-5xl mb-3">👥</div>
+              <p className="text-xl font-black">Havuzda {totals.waiting} katılımcı hazır bekliyor!</p>
+              <p className="mt-2 text-sm font-bold opacity-75 max-w-md mx-auto">
+                Katılımcıların karakter testleri tamamlandı. Masaları en uyumlu şekilde oluşturmak için dağıtımı başlatabilirsin.
+              </p>
+              <button
+                type="button"
+                className={`${btn.primary} mt-4 text-base px-6 py-3 shadow-lg shadow-brand-500/25`}
+                onClick={() => setConfirm('rebalance')}
+                disabled={busy}
+              >
+                ✨ Masaları Şimdi Dağıt ({totals.waiting} kişi)
+              </button>
+            </>
+          ) : (
+            <p className="text-lg font-extrabold opacity-80">Henüz katılımcı yok. İlk kayıt geldiğinde masalar burada görünür 🙂</p>
+          )}
+        </div>
+      )}
+
+      {data.waiting && data.waiting.length > 0 && (
+        <section aria-label="Havuzda bekleyenler" className="card mt-5 p-4" id="waiting-pool">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-black">⏳ Dağıtım Bekleyen Katılımcılar ({data.waiting.length})</h2>
+            <span className="text-xs font-bold opacity-60">Admin dağıtımı bekleniyor</span>
+          </div>
+          <ul className="mt-3 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
+            {data.waiting.map((w, idx) => (
+              <li key={w.id} className="flex items-center justify-between gap-2 rounded-xl px-2.5 py-1 bg-brand-50/50 dark:bg-white/5">
+                <span className="truncate font-bold text-sm">
+                  {idx + 1}. {w.name}
+                </span>
+                <button
+                  id={`delete-${w.id}`}
+                  type="button"
+                  className={btn.smallDanger}
+                  onClick={() => setDeleting(w)}
+                  aria-label={`${w.name} kişisini sil`}
+                  title="Katılımcıyı sil"
+                >
+                  Sil
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {data.waitlist.length > 0 && (
@@ -284,14 +338,31 @@ function Dashboard({ onLogout }) {
 
       {confirm === 'rebalance' && (
         <ConfirmDialog
-          title="Yeniden dağıtılsın mı?"
-          confirmLabel="Yeniden Dağıt"
+          title={data.tables.length === 0 ? 'Masalar dağıtılsın mı?' : 'Yeniden dağıtılsın mı?'}
+          confirmLabel={data.tables.length === 0 ? 'Masaları Dağıt' : 'Yeniden Dağıt'}
           busy={busy}
           onCancel={() => setConfirm(null)}
-          onConfirm={() => run(rebalance, (r) => `Yeniden dağıtıldı: ${r.totals.seated} kişi, ${r.totals.tableCount} masa 🔀`)}
+          onConfirm={() =>
+            run(
+              rebalance,
+              (r) =>
+                data.tables.length === 0
+                  ? `Masalar dağıtıldı: ${r.totals.seated} kişi, ${r.totals.tableCount} masa ✨`
+                  : `Yeniden dağıtıldı: ${r.totals.seated} kişi, ${r.totals.tableCount} masa 🔀`
+            )
+          }
         >
-          Tüm katılımcılar ({totals.participants} kişi) baştan eşleştirme algoritmasıyla dağıtılır. <b>Elle yaptığın taşımalar ve
-          şu anki masa numaraları değişir.</b>
+          {data.tables.length === 0 ? (
+            <>
+              Havuzdaki <b>{totals.participants} katılımcı</b>, ilgi alanları ve karakter testlerine göre en uyumlu masalara
+              yerleştirilecek. Katılımcıların ekranlarında masaları otomatik olarak belirecek.
+            </>
+          ) : (
+            <>
+              Tüm katılımcılar ({totals.participants} kişi) baştan eşleştirme algoritmasıyla dağıtılır.{' '}
+              <b>Elle yaptığın taşımalar ve şu anki masa numaraları değişir.</b>
+            </>
+          )}
         </ConfirmDialog>
       )}
 

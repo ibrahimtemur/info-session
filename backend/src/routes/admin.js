@@ -40,17 +40,23 @@ router.post('/rebalance', async (req, res, next) => {
       position: i + 1
     }));
     
+    const waiting = (newState.waiting || []).map(m => ({
+      id: m.id,
+      name: m.name
+    }));
+
     const seatedCount = tables.reduce((acc, t) => acc + t.count, 0);
     const totals = {
-      participants: seatedCount + waitlist.length,
+      participants: seatedCount + waitlist.length + waiting.length,
       seated: seatedCount,
       waitlisted: waitlist.length,
+      waiting: waiting.length,
       tableCount: tables.length,
       capacity: MAX_SEATS,
       occupancy: MAX_SEATS > 0 ? seatedCount / MAX_SEATS : 0
     };
     
-    res.json({ status: 'ok', tables, waitlist, totals });
+    res.json({ status: 'ok', tables, waitlist, waiting, totals });
   } catch (err) {
     next(err);
   }

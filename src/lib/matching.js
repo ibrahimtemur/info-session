@@ -143,7 +143,7 @@ export function iceBreaker(table) {
 // Durum
 // ---------------------------------------------------------------------------
 export function createState() {
-  return { tables: [], waitlist: [] }
+  return { tables: [], waitlist: [], waiting: [] }
 }
 
 /** Dışarıya (UI/API) verilecek özet: tema ve buz kırıcı eklenmiş masa görünümü. */
@@ -172,7 +172,10 @@ export function placeLatecomer(state, person) {
   }
   if (candidates.length === 0) {
     const waitlist = [...state.waitlist, member]
-    return { state: { tables, waitlist }, result: { status: 'waitlist', position: waitlist.length } }
+    return {
+      state: { tables, waitlist, ...(state.waiting ? { waiting: state.waiting } : {}) },
+      result: { status: 'waitlist', position: waitlist.length },
+    }
   }
   const minSize = Math.min(...candidates.map((t) => t.members.length))
   let best = null
@@ -185,7 +188,10 @@ export function placeLatecomer(state, person) {
     delete best.t.isNew
     tables.push(best.t)
   }
-  return { state: { tables, waitlist: state.waitlist }, result: { status: 'seated', tableId: best.t.id } }
+  return {
+    state: { tables, waitlist: state.waitlist, ...(state.waiting ? { waiting: state.waiting } : {}) },
+    result: { status: 'seated', tableId: best.t.id },
+  }
 }
 
 // Deterministik rastgele sayı üreteci (testler tekrarlanabilir olsun)
@@ -282,9 +288,9 @@ export function totalScore(state) {
 // Admin işlemleri (taşıma, yeniden dağıtma)
 // ---------------------------------------------------------------------------
 
-/** Masalardaki + bekleme listesindeki herkes. */
+/** Masalardaki + bekleme listesindeki + havuzda bekleyen herkes. */
 export function allMembers(state) {
-  return [...state.tables.flatMap((t) => t.members), ...state.waitlist]
+  return [...state.tables.flatMap((t) => t.members), ...state.waitlist, ...(state.waiting ?? [])]
 }
 
 /** Admin işlemi başarısız olursa fırlatılır; code: PARTICIPANT_NOT_FOUND | NO_SUCH_TABLE | TABLE_FULL */
@@ -297,12 +303,15 @@ export class SeatingError extends Error {
 }
 
 /**
- * Bir kişiyi başka masaya taşır (bekleme listesindeki kişi de masaya alınabilir).
+ * Bir kişiyi başka masaya taşır (bekleme listesindeki veya havuzdaki kişi de masaya alınabilir).
  * Kapasite kontrolü burada yapılır; state değişmez, yeni state döner.
  */
 export function moveParticipant(state, personId, toTableId) {
   const from = state.tables.find((t) => t.members.some((m) => m.id === personId))
-  const person = from ? from.members.find((m) => m.id === personId) : state.waitlist.find((m) => m.id === personId)
+  const person =
+    from
+      ? from.members.find((m) => m.id === personId)
+      : state.waitlist.find((m) => m.id === personId) || state.waiting?.find((m) => m.id === personId)
   if (!person) throw new SeatingError('PARTICIPANT_NOT_FOUND', 'Katılımcı bulunamadı')
   const to = state.tables.find((t) => t.id === toTableId)
   if (!to) throw new SeatingError('NO_SUCH_TABLE', 'Böyle bir masa yok')
@@ -315,21 +324,24 @@ export function moveParticipant(state, personId, toTableId) {
       return t
     }),
     waitlist: state.waitlist.filter((m) => m.id !== personId),
+    ...(state.waiting ? { waiting: state.waiting.filter((m) => m.id !== personId) } : {}),
   }
 }
 
 /**
- * Bir kişiyi masalardan veya bekleme listesinden çıkarır.
+ * Bir kişiyi masalardan, bekleme listesinden veya havuzdan çıkarır.
  */
 export function removeParticipant(state, personId) {
   const from = state.tables.find((t) => t.members.some((m) => m.id === personId))
   const inWaitlist = state.waitlist.some((m) => m.id === personId)
-  if (!from && !inWaitlist) throw new SeatingError('PARTICIPANT_NOT_FOUND', 'Katılımcı bulunamadı')
+  const inWaiting = state.waiting?.some((m) => m.id === personId)
+  if (!from && !inWaitlist && !inWaiting) throw new SeatingError('PARTICIPANT_NOT_FOUND', 'Katılımcı bulunamadı')
   return {
     tables: state.tables.map((t) =>
       from && t.id === from.id ? { ...t, members: t.members.filter((m) => m.id !== personId) } : t
     ),
     waitlist: state.waitlist.filter((m) => m.id !== personId),
+    ...(state.waiting ? { waiting: state.waiting.filter((m) => m.id !== personId) } : {}),
   }
 }
 

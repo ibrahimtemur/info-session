@@ -159,6 +159,9 @@ export async function exportCsv() {
 // --- Katılımcı ekranı adaptörleri (eski sonuç nesnesi biçimi) ----------------
 
 function toResult(p, alreadyJoined) {
+  if (p.status === 'waiting') {
+    return { status: 'waiting', name: p.name, meId: p.id, alreadyJoined }
+  }
   if (p.status === 'waitlist') {
     return { status: 'waitlist', name: p.name, meId: p.id, position: p.waitlistPosition, alreadyJoined }
   }

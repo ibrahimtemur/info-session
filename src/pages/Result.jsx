@@ -1,7 +1,61 @@
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { getResult } from '../api/client.js'
 
-/** Sonuç: büyük masa numarası, masadakiler, tema, buz kırıcı. Bekleme listesi varyantı da var. */
-export default function Result({ result }) {
+/** Sonuç: büyük masa numarası, masadakiler, tema, buz kırıcı. Bekleme listesi ve havuzda bekleme varyantları. */
+export default function Result({ result, onResultUpdate }) {
+  // Havuzda bekleyen katılımcı için otomatik polling
+  useEffect(() => {
+    if (result.status !== 'waiting') return
+
+    const interval = setInterval(async () => {
+      try {
+        const next = await getResult()
+        if (next && next.status !== 'waiting') {
+          onResultUpdate?.(next)
+        }
+      } catch {
+        /* Ağ hatası olursa sonraki turda tekrar dene */
+      }
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [result.status, onResultUpdate])
+
+  if (result.status === 'waiting') {
+    return (
+      <div className="flex flex-1 flex-col justify-center text-center py-6">
+        {result.alreadyJoined && <Again />}
+        <motion.div
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
+          className="mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-brand-500/10 text-6xl shadow-inner dark:bg-white/10"
+        >
+          ☕
+        </motion.div>
+        <h1 className="mt-5 text-3xl font-black">Cevapların Kaydedildi! 🎉</h1>
+        <p className="mt-2 text-lg font-bold opacity-80">
+          Harika, <span className="text-brand-600 dark:text-violet-300">{result.name}</span>!
+        </p>
+        <p className="mt-3 text-base font-semibold leading-relaxed opacity-75 max-w-sm mx-auto">
+          Diğer katılımcıların da testi tamamlaması bekleniyor. Organizatör masaları dağıttığında masan ve arkadaşların burada otomatik olarak belirecek.
+        </p>
+
+        <div className="mt-6 inline-flex items-center justify-center gap-2.5 rounded-full bg-brand-100/80 px-5 py-2.5 text-sm font-extrabold text-brand-700 dark:bg-white/10 dark:text-violet-200 mx-auto">
+          <span className="relative flex h-3 w-3">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-400 opacity-75"></span>
+            <span className="relative inline-flex h-3 w-3 rounded-full bg-brand-500"></span>
+          </span>
+          <span>Masalar birazdan dağıtılacak…</span>
+        </div>
+
+        <p className="mt-4 text-xs font-bold opacity-50">
+          Sayfayı açık tutabilirsin, ekran otomatik güncellenecektir 📲
+        </p>
+      </div>
+    )
+  }
+
   if (result.status === 'waitlist') {
     return (
       <div className="flex flex-1 flex-col justify-center text-center">
