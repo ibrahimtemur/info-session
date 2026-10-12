@@ -4,16 +4,31 @@ Bu proje, bir kafede gerçekleştirilen ilk topluluk etkinliği için geliştiri
 
 Hem modern bir kullanıcı arayüzü (Frontend) hem de Postgres tabanlı bir API (Backend) içerir. Canlı sürüm Vercel + Neon üzerinde çalışır.
 
+---
+
+## 🚀 Canlı Yayın & Hızlı Erişim
+
+Uygulama Vercel üzerinde aktiftir. Aşağıdaki linklere tıklayarak veya QR kodları telefonunuzun kamerasıyla okutarak hemen deneyebilirsiniz:
+
+| 📱 Katılımcı Uygulaması (Masanı Bul) | 🔐 Yönetici Paneli (Admin) |
+| :---: | :---: |
+| [![Info Session · Masanı Bul](docs/qr/qr-app.png)](https://info-session-psi.vercel.app/) | [![Admin · Info Session](docs/qr/qr-admin.png)](https://info-session-psi.vercel.app/admin) |
+| 👉 **[Info Session · Masanı Bul](https://info-session-psi.vercel.app/)** | 👉 **[Admin · Info Session](https://info-session-psi.vercel.app/admin)** |
+| *Katılımcıların 8 soruluk anketi doldurup masasını öğrendiği ana ekran* | *Masa dağılımları, canlı doluluk, kişi taşıma, silme ve projektör görünümü* |
+
+---
+
 ## İçindekiler
-1. [Ekran Görüntüleri](#ekran-görüntüleri)
-2. [Kullanılan Teknolojiler](#kullanılan-teknolojiler)
-3. [Özellikler ve Şu Anki Durum](#özellikler-ve-şu-anki-durum)
-4. [Proje Yapısı](#proje-yapısı)
-5. [Yerel Kurulum ve Çalıştırma](#yerel-kurulum-ve-çalıştırma)
-6. [Ortam Değişkenleri (.env)](#ortam-değişkenleri-env)
-7. [Eşleştirme Algoritması](#eşleştirme-algoritması)
-8. [Canlıya Alma Rehberi (Deployment)](#canlıya-alma-rehberi-deployment)
-9. [Bilinen Eksikler](#bilinen-eksikler)
+1. [Canlı Yayın & Hızlı Erişim](#-canlı-yayın--hızlı-erişim)
+2. [Ekran Görüntüleri](#ekran-görüntüleri)
+3. [Kullanılan Teknolojiler](#kullanılan-teknolojiler)
+4. [Özellikler ve Şu Anki Durum](#özellikler-ve-şu-anki-durum)
+5. [Proje Yapısı](#proje-yapısı)
+6. [Yerel Kurulum ve Çalıştırma](#yerel-kurulum-ve-çalıştırma)
+7. [Ortam Değişkenleri (.env)](#ortam-değişkenleri-env)
+8. [Eşleştirme Algoritması](#eşleştirme-algoritması)
+9. [Canlıya Alma Rehberi (Deployment)](#canlıya-alma-rehberi-deployment)
+10. [Bilinen Eksikler](#bilinen-eksikler)
 
 ---
 
@@ -31,7 +46,9 @@ Hem modern bir kullanıcı arayüzü (Frontend) hem de Postgres tabanlı bir API
 | **Backend** | Node.js + Express (v5) | API; Vercel serverless fonksiyonu olarak çalışır. |
 | **Veritabanı** | Neon Postgres (`pg`) | Serverless uyumlu, kalıcı Postgres. Yerleştirme işlemleri advisory lock ile sıraya alınır. |
 | **Doğrulama (Validation)**| Zod | Gelen isteklerin yapısal bütünlüğünü doğrulamak için (tip güvenliği). |
-| **Test** | Vitest + Supertest + PGlite | Frontend mantığı ve backend API entegrasyon testleri (süreç içi Postgres ile). |\n| **Barındırma** | Vercel | Frontend + API tek projede, veritabanı Neon. |
+| **Test** | Vitest + Supertest + PGlite | Frontend mantığı ve backend API entegrasyon testleri (süreç içi Postgres ile). |
+| **Barındırma** | Vercel + Neon | Frontend + API tek projede, veritabanı Neon Frankfurt. |
+
 
 ---
 
