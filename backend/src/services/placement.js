@@ -155,3 +155,31 @@ export function moveParticipant(personId, toTableId) {
     }
   });
 }
+
+export function deleteParticipant(personId) {
+  return withTransaction(async (q) => {
+    const { rows } = await q('SELECT * FROM participants WHERE id = $1', [personId]);
+    const person = rows[0];
+    if (!person) {
+      throw new SeatingError('not_found', 'Katılımcı bulunamadı');
+    }
+
+    await q('DELETE FROM participants WHERE id = $1', [personId]);
+
+    if (person.status === 'waitlist') {
+      const { rows: waitlist } = await q(
+        "SELECT id FROM participants WHERE status = 'waitlist' ORDER BY waitlist_position ASC, seq ASC"
+      );
+      if (waitlist.length) {
+        await q(
+          `UPDATE participants p SET waitlist_position = v.pos
+           FROM unnest($1::text[], $2::int[]) AS v(id, pos) WHERE p.id = v.id`,
+          [waitlist.map((r) => r.id), waitlist.map((_, idx) => idx + 1)]
+        );
+      }
+    }
+
+    return { id: person.id, name: person.name };
+  });
+}
+

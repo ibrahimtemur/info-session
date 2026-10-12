@@ -319,6 +319,22 @@ export function moveParticipant(state, personId, toTableId) {
 }
 
 /**
+ * Bir kişiyi masalardan veya bekleme listesinden çıkarır.
+ */
+export function removeParticipant(state, personId) {
+  const from = state.tables.find((t) => t.members.some((m) => m.id === personId))
+  const inWaitlist = state.waitlist.some((m) => m.id === personId)
+  if (!from && !inWaitlist) throw new SeatingError('PARTICIPANT_NOT_FOUND', 'Katılımcı bulunamadı')
+  return {
+    tables: state.tables.map((t) =>
+      from && t.id === from.id ? { ...t, members: t.members.filter((m) => m.id !== personId) } : t
+    ),
+    waitlist: state.waitlist.filter((m) => m.id !== personId),
+  }
+}
+
+
+/**
  * Herkesi (masadakiler + bekleyenler) assignAll ile baştan dağıtır.
  * order: (a, b) => sayı — kimin önce/ sonra sayılacağı (ör. katılım zamanı); bekleme listesi sırasını belirler.
  */

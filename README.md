@@ -42,9 +42,9 @@ Hem modern bir kullanıcı arayüzü (Frontend) hem de Postgres tabanlı bir API
 | 🎨 **Kullanıcı Arayüzü (UI)** | ✅ Tamamlandı (Responsive, modern, açık/koyu tema) |
 | 📊 **Anket ve Eşleştirme Mantığı** | ✅ Tamamlandı (8 soru, akıllı puanlama) |
 | 💾 **Backend ve Veritabanı** | ✅ Tamamlandı (Express + Neon Postgres, transaction + advisory lock) |
-| 🔒 **Admin Paneli & Güvenlik** | ✅ Tamamlandı (Token tabanlı doğrulama, IP Rate Limit) |
+| 🔒 **Admin Paneli & Güvenlik** | ✅ Tamamlandı (Token tabanlı doğrulama, IP Rate Limit, kişi silme ve masa taşıma) |
 | 📱 **Geç Gelenler (Latecomer)** | ✅ Tamamlandı (Dolu masalara karışmadan boş yere veya bekleme listesine) |
-| 🧪 **Otomatik Testler** | ✅ Tamamlandı (22 Frontend, 10 Backend testi geçiyor) |
+| 🧪 **Otomatik Testler** | ✅ Tamamlandı (Frontend ve Backend testleri geçiyor) |
 
 ---
 
@@ -163,5 +163,4 @@ Frontend ve API aynı alan adında olduğundan CORS ayarı gerekmez.
 ---
 
 ## Bilinen Eksikler
-- **Gerçek zamanlı güncellemeler:** Masalardaki güncellemeleri Admin paneli her 5 saniyede bir çekmektedir. Çok büyük bir katılımcı trafiğinde WebSockets/Server-Sent Events'e (SSE) geçilmesi gerekebilir.
-- **Kişiye Özel Silme İşlemi:** Şimdilik sadece Admin panelinden tüm veritabanı sıfırlanabilmektedir. Tekil bir kullanıcıyı sistemden çıkarma özelliği şu an mevcut değildir, ancak kullanıcının masası değiştirilebilir.
+- **Gerçek zamanlı güncellemeler:** Masalardaki güncellemeleri Admin paneli her 15 saniyede bir çekmektedir. Çok büyük bir katılımcı trafiğinde WebSockets/Server-Sent Events'e (SSE) geçilmesi gerekebilir.

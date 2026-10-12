@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
 import { query } from '../db.js';
-import { addParticipant, moveParticipant, SeatingError } from '../services/placement.js';
+import { addParticipant, moveParticipant, deleteParticipant, SeatingError } from '../services/placement.js';
 import { tableTheme, iceBreaker } from '../shared/matching.js';
 import adminAuth from '../middleware/adminAuth.js';
 
@@ -124,4 +124,21 @@ router.patch('/:id/table', adminAuth, async (req, res, next) => {
   }
 });
 
+router.delete('/:id', adminAuth, async (req, res, next) => {
+  try {
+    try {
+      const deleted = await deleteParticipant(req.params.id);
+      res.json({ status: 'ok', deleted });
+    } catch (err) {
+      if (err instanceof SeatingError && err.code === 'not_found') {
+        return res.status(404).json({ error: { code: 'not_found', message: err.message } });
+      }
+      throw err;
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
+

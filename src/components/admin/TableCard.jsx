@@ -1,7 +1,7 @@
 import { btn } from './ui.js'
 
 /** Tek masa kartı: doluluk çubuğu + oturanlar + "Taşı" butonları. */
-export default function TableCard({ table, onMove }) {
+export default function TableCard({ table, onMove, onDelete }) {
   const pct = Math.round((table.count / table.capacity) * 100)
   const full = table.count >= table.capacity
   return (
@@ -30,15 +30,29 @@ export default function TableCard({ table, onMove }) {
         {table.members.map((m) => (
           <li key={m.id} className="flex items-center justify-between gap-2 rounded-xl px-2 py-0.5 hover:bg-brand-50 dark:hover:bg-white/5">
             <span className="truncate font-bold">{m.name}</span>
-            <button
-              id={`move-${m.id}`}
-              type="button"
-              className={btn.small}
-              onClick={() => onMove(m, table.number)}
-              aria-label={`${m.name} kişisini taşı`}
-            >
-              Taşı
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                id={`move-${m.id}`}
+                type="button"
+                className={btn.small}
+                onClick={() => onMove(m, table.number)}
+                aria-label={`${m.name} kişisini taşı`}
+              >
+                Taşı
+              </button>
+              {onDelete && (
+                <button
+                  id={`delete-${m.id}`}
+                  type="button"
+                  className={btn.smallDanger}
+                  onClick={() => onDelete(m)}
+                  aria-label={`${m.name} kişisini sil`}
+                  title="Katılımcıyı sil"
+                >
+                  Sil
+                </button>
+              )}
+            </div>
           </li>
         ))}
         {table.members.length === 0 && <li className="px-2 text-sm font-bold opacity-50">Boş masa</li>}

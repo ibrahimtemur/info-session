@@ -5,6 +5,7 @@ import {
   allMembers,
   assignAll,
   moveParticipant,
+  removeParticipant,
   rebalance,
 } from './matching.js'
 import { fakePeople } from './fakePeople.js'
@@ -54,6 +55,27 @@ describe('moveParticipant', () => {
   it('aynı masaya taşıma etkisizdir', () => {
     const who = base.tables[0].members[0].id
     expect(moveParticipant(base, who, 1)).toBe(base)
+  })
+})
+
+describe('removeParticipant', () => {
+  it('masadaki kişiyi çıkarır, diğerleri kalır', () => {
+    const s = assignAll(fakePeople(6))
+    const who = s.tables[0].members[0].id
+    const next = removeParticipant(s, who)
+    expect(next.tables[0].members).toHaveLength(5)
+    expect(next.tables[0].members.some((m) => m.id === who)).toBe(false)
+  })
+
+  it('bekleme listesindeki kişiyi çıkarır', () => {
+    const s = { tables: [], waitlist: [{ id: 'w1', name: 'W1' }] }
+    const next = removeParticipant(s, 'w1')
+    expect(next.waitlist).toHaveLength(0)
+  })
+
+  it('olmayan kişi için hata fırlatır', () => {
+    const s = assignAll(fakePeople(4))
+    expect(() => removeParticipant(s, 'olmayan-id')).toThrow(SeatingError)
   })
 })
 

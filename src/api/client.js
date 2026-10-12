@@ -130,6 +130,14 @@ export async function moveParticipant(id, tableNumber) {
     : request(`/api/participants/${encodeURIComponent(id)}/table`, { method: 'PATCH', body: { tableNumber }, admin: true })
 }
 
+/** DELETE /api/participants/:id */
+export async function deleteParticipant(id) {
+  if (!USE_MOCK) assertOnline()
+  return USE_MOCK
+    ? mock.deleteParticipant(id, adminToken())
+    : request(`/api/participants/${encodeURIComponent(id)}`, { method: 'DELETE', admin: true })
+}
+
 /** POST /api/admin/rebalance */
 export async function rebalance() {
   if (!USE_MOCK) assertOnline()

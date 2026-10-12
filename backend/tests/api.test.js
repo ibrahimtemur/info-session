@@ -105,6 +105,31 @@ describe('Info Session API', () => {
     expect(res.body.tableNumber).toBe(2);
   });
 
+  it('DELETE /api/participants/:id should require auth', async () => {
+    const res = await request(app).delete(`/api/participants/${participantId}`);
+    expect(res.status).toBe(401);
+  });
+
+  it('DELETE /api/participants/:id should return 404 for non-existent id', async () => {
+    const res = await request(app)
+      .delete('/api/participants/non-existent-id')
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(res.status).toBe(404);
+  });
+
+  it('DELETE /api/participants/:id should delete participant', async () => {
+    const res = await request(app)
+      .delete(`/api/participants/${participantId}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('ok');
+    expect(res.body.deleted.id).toBe(participantId);
+
+    // After deletion, GET should return 404
+    const getRes = await request(app).get(`/api/participants/${participantId}`);
+    expect(getRes.status).toBe(404);
+  });
+
   it('POST /api/participants race condition capacity test (50 parallel)', async () => {
     // Clear DB to test capacity
     await query('DELETE FROM participants');

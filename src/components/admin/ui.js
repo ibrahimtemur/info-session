@@ -8,6 +8,8 @@ export const btn = {
   danger: `${base} bg-pop text-white shadow-lg shadow-orange-500/30`,
   small:
     'inline-flex min-h-9 items-center justify-center rounded-full border-2 border-brand-100 px-3 text-xs font-extrabold transition active:scale-95 hover:bg-brand-50 dark:border-white/15 dark:hover:bg-white/10',
+  smallDanger:
+    'inline-flex min-h-9 items-center justify-center rounded-full border-2 border-pop/30 text-pop px-3 text-xs font-extrabold transition active:scale-95 hover:bg-pop/10 dark:border-pop/40 dark:text-pop dark:hover:bg-pop/20',
 }
 
 export function messageOf(e) {

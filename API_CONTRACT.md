@@ -149,6 +149,19 @@ Yanıt `200`: güncel katılımcı (`GET /api/participants/:id` şekli):
 ```
 Hatalar: `400 invalid_data` (olmayan/geçersiz masa), `401`, `404` (katılımcı), `409 table_full`.
 
+## DELETE /api/participants/:id  🔒 admin
+
+Katılımcıyı sistemden tamamen siler. Oturduğu masadaki yer boşalır; eğer bekleme listesindeyse kalan bekleyenlerin sırası güncellenir. Bu kişinin cihazı tekrar kayıt olabilir hale gelir.
+
+Yanıt `200`:
+```json
+{
+  "status": "ok",
+  "deleted": { "id": "ulq2k8f1a", "name": "Ayşe" }
+}
+```
+Hatalar: `401 unauthorized`, `404 not_found`.
+
 ## POST /api/admin/rebalance  🔒 admin
 
 Herkesi (masadakiler + bekleyenler) toplu dağıtım algoritmasıyla baştan dağıtır. Katılım sırası korunur (72'den fazlaysa son gelenler bekleme listesine girer). Elle yapılan taşımalar sıfırlanır. Gövde gerekmez.

@@ -17,6 +17,7 @@ import {
   createState,
   describeTable,
   moveParticipant as moveInState,
+  removeParticipant as removeFromState,
   placeLatecomer,
   rebalance as rebalanceState,
   tableTheme,
@@ -176,6 +177,26 @@ export async function moveParticipant(id, tableNumber, token) {
     if (e.code === 'PARTICIPANT_NOT_FOUND') throw new ApiError(404, 'not_found', e.message)
     if (e.code === 'TABLE_FULL') throw new ApiError(409, 'table_full', e.message, { tableNumber })
     throw new ApiError(400, 'invalid_data', e.message, { fields: ['tableNumber'] })
+  }
+}
+
+/** DELETE /api/participants/:id */
+export async function deleteParticipant(id, token) {
+  await delay(150)
+  requireAdmin(token)
+  const db = loadDb()
+  try {
+    const nextState = removeFromState(db, id)
+    const people = { ...db.people }
+    delete people[id]
+    const next = { ...nextState, people }
+    saveDb(next)
+    return { status: 'ok', id }
+  } catch (e) {
+    if (e instanceof SeatingError && e.code === 'PARTICIPANT_NOT_FOUND') {
+      throw new ApiError(404, 'not_found', e.message)
+    }
+    throw e
   }
 }
 

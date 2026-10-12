@@ -6,6 +6,7 @@ import {
   getTables,
   hasAdminToken,
   moveParticipant,
+  deleteParticipant,
   rebalance,
   resetAll,
 } from '../api/client.js'
@@ -59,6 +60,7 @@ function Dashboard({ onLogout }) {
   const [data, setData] = useState(null)
   const [loadError, setLoadError] = useState(null)
   const [moving, setMoving] = useState(null) // {member, from}
+  const [deleting, setDeleting] = useState(null) // member
   const [confirm, setConfirm] = useState(null) // 'rebalance' | 'reset'
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState(null)
@@ -106,6 +108,7 @@ function Dashboard({ onLogout }) {
     } finally {
       setBusy(false)
       setMoving(null)
+      setDeleting(null)
       setConfirm(null)
       load()
     }
@@ -209,7 +212,12 @@ function Dashboard({ onLogout }) {
 
       <section aria-label="Masalar" className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {data.tables.map((t) => (
-          <TableCard key={t.number} table={t} onMove={(member, from) => setMoving({ member, from })} />
+          <TableCard
+            key={t.number}
+            table={t}
+            onMove={(member, from) => setMoving({ member, from })}
+            onDelete={(member) => setDeleting(member)}
+          />
         ))}
       </section>
       {data.tables.length === 0 && (
@@ -225,9 +233,21 @@ function Dashboard({ onLogout }) {
                 <span className="truncate font-bold">
                   {w.position}. {w.name}
                 </span>
-                <button id={`move-${w.id}`} type="button" className={btn.small} onClick={() => setMoving({ member: w, from: null })}>
-                  Masaya al
-                </button>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button id={`move-${w.id}`} type="button" className={btn.small} onClick={() => setMoving({ member: w, from: null })}>
+                    Masaya al
+                  </button>
+                  <button
+                    id={`delete-${w.id}`}
+                    type="button"
+                    className={btn.smallDanger}
+                    onClick={() => setDeleting(w)}
+                    aria-label={`${w.name} kişisini sil`}
+                    title="Katılımcıyı sil"
+                  >
+                    Sil
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -245,6 +265,21 @@ function Dashboard({ onLogout }) {
             run(() => moveParticipant(moving.member.id, n), `${moving.member.name} → Masa ${n} ✅`)
           }
         />
+      )}
+
+      {deleting && (
+        <ConfirmDialog
+          title={`${deleting.name} silinsin mi?`}
+          confirmLabel="Evet, sil"
+          danger
+          busy={busy}
+          onCancel={() => setDeleting(null)}
+          onConfirm={() =>
+            run(() => deleteParticipant(deleting.id), `${deleting.name} silindi 🗑`)
+          }
+        >
+          <b>{deleting.name}</b> sistemden tamamen silinecek. Boşalan koltuğa başka biri oturabilir veya aynı cihazla yeniden kayıt olabilir. <b>Bu işlem geri alınamaz.</b>
+        </ConfirmDialog>
       )}
 
       {confirm === 'rebalance' && (
