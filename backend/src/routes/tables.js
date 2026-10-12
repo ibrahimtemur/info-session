@@ -1,13 +1,12 @@
 import { Router } from 'express';
-import db from '../db.js';
 import { getActiveState } from '../services/placement.js';
 import { tableTheme, TABLE_CAPACITY, MAX_SEATS } from '../shared/matching.js';
 
 const router = Router();
 
-router.get('/', (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
-    const state = getActiveState();
+    const state = await getActiveState();
     
     const tables = state.tables.map(t => ({
       number: t.id,

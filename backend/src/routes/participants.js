@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
-import db from '../db.js';
+import { query } from '../db.js';
 import { addParticipant, moveParticipant, SeatingError } from '../services/placement.js';
 import { tableTheme, iceBreaker } from '../shared/matching.js';
 import adminAuth from '../middleware/adminAuth.js';
@@ -30,8 +30,8 @@ const participantSchema = z.object({
 });
 
 // Yardımcı: Belirli bir id için response datasını hesapla
-function getParticipantData(id) {
-  const row = db.prepare('SELECT * FROM participants WHERE id = ?').get(id);
+async function getParticipantData(id) {
+  const row = (await query('SELECT * FROM participants WHERE id = $1', [id])).rows[0];
   if (!row) return null;
   
   const res = {
@@ -46,10 +46,10 @@ function getParticipantData(id) {
   };
   
   if (row.status === 'seated' && row.table_number !== null) {
-    const mates = db.prepare('SELECT id, name, feature_vector FROM participants WHERE table_number = ? AND status = \'seated\'').all(row.table_number);
+    const mates = (await query("SELECT id, name, feature_vector FROM participants WHERE table_number = $1 AND status = 'seated' ORDER BY seq ASC", [row.table_number])).rows;
     res.tablemates = mates.filter(m => m.id !== id).map(m => ({ id: m.id, name: m.name }));
     
-    const tableMembers = mates.map(m => ({ id: m.id, name: m.name, vec: JSON.parse(m.feature_vector) }));
+    const tableMembers = mates.map(m => ({ id: m.id, name: m.name, vec: m.feature_vector }));
     res.theme = tableTheme({ members: tableMembers });
     res.iceBreaker = iceBreaker({ members: tableMembers });
     delete res.waitlistPosition;
@@ -58,7 +58,7 @@ function getParticipantData(id) {
   return res;
 }
 
-router.post('/', limiter, (req, res, next) => {
+router.post('/', limiter, async (req, res, next) => {
   try {
     const parseResult = participantSchema.safeParse(req.body);
     if (!parseResult.success) {
@@ -74,8 +74,8 @@ router.post('/', limiter, (req, res, next) => {
     const { name, answers, deviceId } = parseResult.data;
     
     try {
-      const id = addParticipant(name, answers, deviceId);
-      const data = getParticipantData(id);
+      const id = await addParticipant(name, answers, deviceId);
+      const data = await getParticipantData(id);
       res.status(data.status === 'seated' ? 201 : 200).json(data);
     } catch (err) {
       if (err instanceof SeatingError && err.code === 'already_registered') {
@@ -88,9 +88,9 @@ router.post('/', limiter, (req, res, next) => {
   }
 });
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   try {
-    const data = getParticipantData(req.params.id);
+    const data = await getParticipantData(req.params.id);
     if (!data) {
       return res.status(404).json({ error: { code: 'not_found', message: 'Katılımcı bulunamadı' } });
     }
@@ -100,15 +100,15 @@ router.get('/:id', (req, res, next) => {
   }
 });
 
-router.patch('/:id/table', adminAuth, (req, res, next) => {
+router.patch('/:id/table', adminAuth, async (req, res, next) => {
   try {
     const { tableNumber } = req.body;
     if (typeof tableNumber !== 'number') {
       return res.status(400).json({ error: { code: 'invalid_data', message: 'tableNumber eksik veya geçersiz' } });
     }
     try {
-      moveParticipant(req.params.id, tableNumber);
-      const data = getParticipantData(req.params.id);
+      await moveParticipant(req.params.id, tableNumber);
+      const data = await getParticipantData(req.params.id);
       res.json(data);
     } catch (err) {
       if (err instanceof SeatingError) {

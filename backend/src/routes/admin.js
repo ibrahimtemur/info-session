@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import db from '../db.js';
+import { query } from '../db.js';
 import adminAuth from '../middleware/adminAuth.js';
 import { rebalanceAll, resetDatabase, moveParticipant, SeatingError } from '../services/placement.js';
 import { tableTheme, iceBreaker, TABLE_CAPACITY, MAX_SEATS } from '../shared/matching.js';
@@ -22,9 +22,9 @@ router.post('/login', (req, res, next) => {
 router.use(adminAuth);
 
 
-router.post('/rebalance', (req, res, next) => {
+router.post('/rebalance', async (req, res, next) => {
   try {
-    const newState = rebalanceAll();
+    const newState = await rebalanceAll();
     
     const tables = newState.tables.map(t => ({
       number: t.id,
@@ -56,18 +56,18 @@ router.post('/rebalance', (req, res, next) => {
   }
 });
 
-router.post('/reset', (req, res, next) => {
+router.post('/reset', async (req, res, next) => {
   try {
-    resetDatabase();
+    await resetDatabase();
     res.json({ status: 'ok' });
   } catch (err) {
     next(err);
   }
 });
 
-router.get('/export.csv', (req, res, next) => {
+router.get('/export.csv', async (req, res, next) => {
   try {
-    const participants = db.prepare('SELECT * FROM participants ORDER BY created_at ASC').all();
+    const participants = (await query('SELECT * FROM participants ORDER BY seq ASC')).rows;
     
     const escape = (val) => {
       if (val == null) return '';
@@ -83,9 +83,9 @@ router.get('/export.csv', (req, res, next) => {
     csv += 'id,name,status,table_number,waitlist_position,joined_at,crowd,starter,interests,style,goal,dept,friday,drink\r\n';
     
     for (const p of participants) {
-      const a = JSON.parse(p.answers);
+      const a = p.answers;
       const interests = Array.isArray(a.interests) ? a.interests.join(';') : '';
-      csv += `${escape(p.id)},${escape(p.name)},${escape(p.status)},${escape(p.table_number)},${escape(p.waitlist_position)},${escape(p.created_at)},${escape(a.crowd)},${escape(a.starter)},${escape(interests)},${escape(a.style)},${escape(a.goal)},${escape(a.dept)},${escape(a.friday)},${escape(a.drink)}\r\n`;
+      csv += `${escape(p.id)},${escape(p.name)},${escape(p.status)},${escape(p.table_number)},${escape(p.waitlist_position)},${escape(p.created_at instanceof Date ? p.created_at.toISOString() : p.created_at)},${escape(a.crowd)},${escape(a.starter)},${escape(interests)},${escape(a.style)},${escape(a.goal)},${escape(a.dept)},${escape(a.friday)},${escape(a.drink)}\r\n`;
     }
     
     res.header('Content-Type', 'text/csv; charset=utf-8');

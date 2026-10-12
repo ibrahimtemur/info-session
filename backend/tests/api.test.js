@@ -1,15 +1,17 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import app from '../src/server.js';
-import db from '../src/db.js';
+import { query } from '../src/db.js';
+
+process.env.ADMIN_PASSWORD ??= 'test-parola';
 
 describe('Info Session API', () => {
-  beforeAll(() => {
-    db.prepare('DELETE FROM participants').run();
+  beforeAll(async () => {
+    await query('DELETE FROM participants');
   });
 
-  afterAll(() => {
-    db.prepare('DELETE FROM participants').run();
+  afterAll(async () => {
+    await query('DELETE FROM participants');
   });
 
   const validAnswers = {
@@ -105,7 +107,7 @@ describe('Info Session API', () => {
 
   it('POST /api/participants race condition capacity test (50 parallel)', async () => {
     // Clear DB to test capacity
-    db.prepare('DELETE FROM participants').run();
+    await query('DELETE FROM participants');
 
     const reqs = [];
     for (let i = 0; i < 50; i++) {
