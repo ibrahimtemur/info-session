@@ -2,7 +2,7 @@
 
 Bu proje, bir kafede gerçekleştirilen ilk topluluk etkinliği için geliştirilmiş bir masa eşleştirme uygulamasıdır. Katılımcılar telefonlarından veya web üzerinden uygulamaya girip 8 soruluk bir anketi doldurur. Sistem, verilen cevaplara göre katılımcıları "en uyumlu" ve "çeşitlilik açısından en dengeli" karma masalara otomatik olarak atar. 
 
-Hem modern bir kullanıcı arayüzü (Frontend) hem de sağlam bir veritabanı altyapısı (Backend) içerir. 
+Hem modern bir kullanıcı arayüzü (Frontend) hem de Postgres tabanlı bir API (Backend) içerir. Canlı sürüm Vercel + Neon üzerinde çalışır.
 
 ## İçindekiler
 1. [Ekran Görüntüleri](#ekran-görüntüleri)
@@ -28,10 +28,10 @@ Hem modern bir kullanıcı arayüzü (Frontend) hem de sağlam bir veritabanı a
 |---|---|---|
 | **Frontend** | React (v19) + Vite (v8) | Modern ve hızlı arayüz kütüphanesi. |
 | **Stil / UI** | Tailwind CSS (v4) + Framer Motion | Hızlı biçimlendirme ve akıcı animasyonlar. |
-| **Backend** | Node.js + Express (v5) | API sunucusu. |
-| **Veritabanı** | better-sqlite3 | Eşzamanlı işlemleri ve kalıcılığı sağlayan, dosya tabanlı güvenilir SQL veritabanı. |
+| **Backend** | Node.js + Express (v5) | API; Vercel serverless fonksiyonu olarak çalışır. |
+| **Veritabanı** | Neon Postgres (`pg`) | Serverless uyumlu, kalıcı Postgres. Yerleştirme işlemleri advisory lock ile sıraya alınır. |
 | **Doğrulama (Validation)**| Zod | Gelen isteklerin yapısal bütünlüğünü doğrulamak için (tip güvenliği). |
-| **Test** | Vitest + Supertest | Frontend mantığı ve backend API entegrasyon testleri. |
+| **Test** | Vitest + Supertest + PGlite | Frontend mantığı ve backend API entegrasyon testleri (süreç içi Postgres ile). |\n| **Barındırma** | Vercel | Frontend + API tek projede, veritabanı Neon. |
 
 ---
 
@@ -41,7 +41,7 @@ Hem modern bir kullanıcı arayüzü (Frontend) hem de sağlam bir veritabanı a
 |---------|-------|
 | 🎨 **Kullanıcı Arayüzü (UI)** | ✅ Tamamlandı (Responsive, modern, açık/koyu tema) |
 | 📊 **Anket ve Eşleştirme Mantığı** | ✅ Tamamlandı (8 soru, akıllı puanlama) |
-| 💾 **Backend ve Veritabanı** | ✅ Tamamlandı (Express + SQLite, atomic transactions) |
+| 💾 **Backend ve Veritabanı** | ✅ Tamamlandı (Express + Neon Postgres, transaction + advisory lock) |
 | 🔒 **Admin Paneli & Güvenlik** | ✅ Tamamlandı (Token tabanlı doğrulama, IP Rate Limit) |
 | 📱 **Geç Gelenler (Latecomer)** | ✅ Tamamlandı (Dolu masalara karışmadan boş yere veya bekleme listesine) |
 | 🧪 **Otomatik Testler** | ✅ Tamamlandı (22 Frontend, 10 Backend testi geçiyor) |
@@ -50,27 +50,28 @@ Hem modern bir kullanıcı arayüzü (Frontend) hem de sağlam bir veritabanı a
 
 ## Proje Yapısı
 
-Proje genel olarak Frontend (Kök dizin) ve Backend (`/backend`) olarak ikiye ayrılmıştır:
+Proje Frontend (`src/`), Vercel fonksiyon girişi (`api/`) ve Backend kodu (`backend/`) olarak ayrılmıştır. Tüm bağımlılıklar kökteki tek `package.json` içindedir:
 
 ```text
 info-session/
 ├── README.md               # Projenin ana dokümantasyonu
 ├── API_CONTRACT.md         # Frontend ve Backend arasındaki iletişim kuralları
-├── package.json            # Frontend bağımlılıkları ve scriptleri
-├── vite.config.js          # Vite ayarları ve Backend proxy yapılandırması
+├── package.json            # Tüm bağımlılıklar ve scriptler (frontend + backend)
+├── vite.config.js          # Vite ayarları, test ayarları ve yerel API proxy'si
+├── vercel.json             # Vercel yönlendirmeleri ve fonksiyon bölgesi (fra1)
 ├── .env.example            # Frontend için örnek ortam değişkenleri
+├── api/
+│   └── index.js            # Vercel serverless giriş noktası (Express uygulamasını dışa aktarır)
 ├── src/                    # Frontend Kodları
 │   ├── api/                # Backend iletişimi (client.js ve mockServer.js)
 │   ├── components/         # Yeniden kullanılabilir UI bileşenleri
 │   ├── lib/                # Eşleştirme algoritması (matching.js) ve testleri
 │   └── pages/              # Sayfalar (Admin, Home, Result vb.)
 └── backend/                # Backend Kodları
-    ├── package.json        # Backend bağımlılıkları ve scriptleri
     ├── .env.example        # Backend için örnek ortam değişkenleri
-    ├── data.db             # SQLite Veritabanı dosyası
     ├── src/
-    │   ├── server.js       # Express sunucu yapılandırması
-    │   ├── db.js           # Veritabanı bağlantısı
+    │   ├── server.js       # Express uygulaması
+    │   ├── db.js           # Postgres bağlantısı (pg / testte PGlite)
     │   ├── routes/         # API uç noktaları (admin.js, participants.js, tables.js)
     │   └── services/       # İş mantığı (placement.js vb.)
     └── tests/              # Backend entegrasyon testleri
@@ -80,52 +81,53 @@ info-session/
 
 ## Yerel Kurulum ve Çalıştırma
 
-Projeyi bilgisayarınızda çalıştırmak için NodeJS (v20+) kurulu olmalıdır. 
+Projeyi bilgisayarınızda çalıştırmak için NodeJS (v20+) kurulu olmalıdır. Backend ve frontend **tek bir `package.json`** kullanır.
 
-### 1. Backend Kurulumu ve Başlatılması
-Yeni bir terminal açıp şu komutları çalıştırın:
-```bash
-cd backend
-npm install
-npm run dev
-```
-*(Backend sunucusu varsayılan olarak `http://localhost:3000` portunda ayağa kalkacaktır.)*
-
-### 2. Frontend Kurulumu ve Başlatılması
-Projenin **kök dizininde** farklı bir terminal açıp şu komutları çalıştırın:
+### 1. Bağımlılıkları kurun
+Kök dizinde:
 ```bash
 npm install
+```
+
+### 2. Backend'i başlatın
+API için bir Postgres veritabanı gerekir (örn. ücretsiz bir Neon veritabanı). `backend/.env` dosyasına `DATABASE_URL` ve `ADMIN_PASSWORD` yazın, sonra:
+```bash
+npm run dev:api
+```
+*(API varsayılan olarak `http://localhost:3000` portunda çalışır. Tablo ilk istekte otomatik oluşturulur.)*
+
+### 3. Frontend'i başlatın
+Farklı bir terminalde:
+```bash
 npm run dev
 ```
-*(Frontend sunucusu varsayılan olarak `http://localhost:5173` portunda açılır ve API isteklerini otomatik olarak Backend portu olan 3000'e proxy'ler.)*
+*(Frontend `http://localhost:5173` portunda açılır ve `/api` isteklerini otomatik olarak 3000 portuna yönlendirir.)*
 
-### 3. Diğer Yararlı Komutlar (Kök Dizinde)
-- `npm run test`: Frontend'deki eşleştirme algoritması ve utility testlerini çalıştırır.
-- `npm run seed`: Veritabanına rastgele test verisi (katılımcı) ekler. (Örn: `npm run seed 30` ile 30 kişi eklenir)
+### 4. Diğer Yararlı Komutlar (Kök Dizinde)
+- `npm test`: Frontend ve backend (API) testlerini çalıştırır. Backend testleri gerçek veritabanı gerektirmez; süreç içi Postgres (PGlite) kullanır.
+- `npm run seed`: Rastgele test verisi (katılımcı) üretir. (Örn: `npm run seed 30` ile 30 kişi)
 - `npm run build`: Projenin üretime (production) hazır halini derler.
-
-*(Backend dizininde `cd backend` sonrası `npm run test` diyerek API uç noktalarının (supertest) testlerini de çalıştırabilirsiniz.)*
 
 ---
 
 ## Ortam Değişkenleri (.env)
 
-Güvenlik sebebiyle parolalar asla kod içine yazılmaz. Kök dizinde ve `backend/` klasöründe `.env` isimli dosyalar oluşturmalısınız. 
+Güvenlik sebebiyle parolalar asla kod içine yazılmaz. Yerelde kök dizinde `.env` (frontend) ve `backend/.env` (API) dosyaları kullanılır; Vercel'de bu değerler panelden girilir.
 
 **Kök Dizin (Frontend) `.env` Değişkenleri:**
 | Değişken Adı | Açıklama | Örnek Değer |
 |--------------|----------|-------------|
 | `VITE_USE_MOCK` | Backend olmadan sahte verilerle test etmek için `true` yapılır. Gerçek kullanımda `false` olmalıdır. | `false` |
-| `VITE_API_BASE_URL` | İsteklerin gönderileceği ana adres (Eğer Vite config içinde proxy kullanıyorsanız boş bırakılabilir veya kendi URL'niz verilebilir). | `http://localhost:3000` |
+| `VITE_API_BASE_URL` | İsteklerin gönderileceği ana adres. Vercel'de **boş bırakılır** (API aynı alan adında). Yerelde boşsa Vite proxy'si `localhost:3000`'e yönlendirir. | *(boş)* |
 | `VITE_ADMIN_PASSWORD` | Sadece Mock (sahte) modda test ederken kullanılan admin şifresi. | *(İstediğiniz bir şifre)* |
 
-**Backend Dizini (`/backend`) `.env` Değişkenleri:**
+**Backend (`backend/.env` ve Vercel) Değişkenleri:**
 | Değişken Adı | Açıklama | Örnek Değer |
 |--------------|----------|-------------|
-| `PORT` | API sunucusunun çalışacağı port. | `3000` |
-| `FRONTEND_ORIGIN` | CORS politikası gereği sadece izin verilen Frontend adresleri (virgülle birden fazla eklenebilir). | `http://localhost:5173, http://localhost:5174` |
+| `DATABASE_URL` | Postgres bağlantı adresi. Vercel'de Neon entegrasyonu otomatik ekler. | `postgres://...` |
 | `ADMIN_PASSWORD` | **Gerçek Admin Paneli parolası.** Güçlü bir şifre seçmelisiniz. | *(Güçlü bir şifre)* |
-| `DB_PATH` | SQLite veritabanı dosyasının konumu. | `./data.db` |
+| `PORT` | Yerelde API sunucusunun portu. | `3000` |
+| `FRONTEND_ORIGIN` | (İsteğe bağlı) Frontend farklı bir alan adındaysa CORS izni; virgülle birden fazla eklenebilir. Vercel'de gerekmez. | `http://localhost:5173` |
 
 ---
 
@@ -147,11 +149,16 @@ Eşleştirme mantığı `src/lib/matching.js` içerisinde yer alır ve algoritma
 
 ## Canlıya Alma Rehberi (Deployment)
 
-Projeyi internete açmak (Canlıya almak) için:
+Proje tek bir **Vercel** projesi olarak yayınlanır: frontend statik dosyalar, backend ise `api/index.js` üzerinden Vercel serverless fonksiyonu olarak çalışır. Veritabanı **Neon Postgres**'tir.
 
-1. **Frontend'i Derleme (Build):** Kök dizinde `npm run build` komutunu çalıştırın. Bu komut `dist/` adında optimize edilmiş statik dosyalar oluşturur. Bu klasörü Vercel, Netlify veya herhangi bir statik sunucuda (Nginx/Apache) yayınlayabilirsiniz.
-2. **Backend'i Başlatma:** Backend klasörünüze gidin, `.env` dosyasını (özellikle `FRONTEND_ORIGIN` ve `ADMIN_PASSWORD`) doğru yapılandırın. Terminalde `node src/server.js` (veya `pm2 start src/server.js`) komutuyla API'yi ayaklandırın.
-3. **Kalıcı Depolama Uyarısı (SQLite):** Backend SQLite kullandığı için, uygulamanızın çalıştığı sunucunun (örn: Render, Heroku) **kalıcı bir diski (persistent disk/volume)** olduğundan emin olun! Aksi halde her deploy veya yeniden başlatmada veritabanı (data.db) silinebilir.
+1. **Vercel projesi:** vercel.com'da GitHub reposunu içe aktarın (Framework: Vite, Build: `npm run build`, Output: `dist`).
+2. **Veritabanı:** Vercel panelinden Neon'u (Marketplace) projeye bağlayın. `DATABASE_URL` otomatik eklenir. Özel önek (prefix) alanını **boş** bırakın.
+3. **Ortam değişkenleri:** `ADMIN_PASSWORD` (güçlü bir parola) ve `VITE_USE_MOCK=false` ekleyin. `VITE_ADMIN_PASSWORD` **eklenmez** (tarayıcı paketine gömülür).
+4. **Bölge:** `vercel.json` içindeki `regions: ["fra1"]` fonksiyonları Frankfurt'a alır (Neon ile aynı bölge, düşük gecikme).
+5. **Deploy:** Git push ile otomatik ya da `npx vercel deploy --prod --yes` ile elle.
+6. **Kontrol:** `https://<proje>.vercel.app/api/health` → `{"status":"ok"}`.
+
+Frontend ve API aynı alan adında olduğundan CORS ayarı gerekmez.
 
 ---
 

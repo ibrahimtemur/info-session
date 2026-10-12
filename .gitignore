@@ -6,3 +6,6 @@ dist
 *.db-wal
 *.db-shm
 *.log
+
+.vercel
+.env.local
