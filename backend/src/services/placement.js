@@ -1,5 +1,5 @@
 import { query, withTransaction } from '../db.js';
-import { buildVector, placeLatecomer, rebalance as matchingRebalance, TABLE_CAPACITY } from '../shared/matching.js';
+import { buildVector, placeLatecomer, rebalance as matchingRebalance, TABLE_CAPACITY, fakePeople, allMembers } from '../shared/matching.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export class SeatingError extends Error {
@@ -196,6 +196,44 @@ export function deleteParticipant(personId) {
     }
 
     return { id: person.id, name: person.name };
+  });
+}
+
+export function seedParticipants(count = 30) {
+  return withTransaction(async (q) => {
+    const currentState = await getActiveState(q);
+    const all = allMembers(currentState);
+    const offset = all.filter((m) => m.id.startsWith('fake')).length;
+    const fakes = fakePeople(count, offset);
+
+    for (const f of fakes) {
+      const id = f.id;
+      const name = f.name;
+      const answers = f.answers;
+      const vec = buildVector(answers);
+      const deviceId = `sim-${id}-${Date.now().toString(36)}`;
+
+      if (currentState.tables.length === 0) {
+        await q(
+          `INSERT INTO participants (id, name, answers, feature_vector, table_number, device_id, status, waitlist_position)
+           VALUES ($1, $2, $3::jsonb, $4::jsonb, NULL, $5, 'waiting', NULL)`,
+          [id, name, JSON.stringify(answers), JSON.stringify(vec), deviceId]
+        );
+      } else {
+        const { state, result } = placeLatecomer(currentState, { id, name, answers, vec });
+        currentState.tables = state.tables;
+        currentState.waitlist = state.waitlist;
+        const tableNumber = result.status === 'seated' ? result.tableId : null;
+        const waitlistPosition = result.status === 'waitlist' ? result.position : null;
+        await q(
+          `INSERT INTO participants (id, name, answers, feature_vector, table_number, device_id, status, waitlist_position)
+           VALUES ($1, $2, $3::jsonb, $4::jsonb, $5, $6, $7, $8)`,
+          [id, name, JSON.stringify(answers), JSON.stringify(vec), tableNumber, deviceId, result.status, waitlistPosition]
+        );
+      }
+    }
+
+    return count;
   });
 }
 

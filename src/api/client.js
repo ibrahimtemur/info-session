@@ -150,6 +150,14 @@ export async function resetAll() {
   return USE_MOCK ? mock.reset(adminToken()) : request('/api/admin/reset', { method: 'POST', admin: true })
 }
 
+/** POST /api/admin/seed (test için katılımcı simüle eder) */
+export async function seedParticipants(count = 30) {
+  if (!USE_MOCK) assertOnline()
+  return USE_MOCK
+    ? mock.devSeed(count)
+    : request('/api/admin/seed', { method: 'POST', body: { count }, admin: true })
+}
+
 /** GET /api/admin/export.csv -> CSV metni */
 export async function exportCsv() {
   if (!USE_MOCK) assertOnline()

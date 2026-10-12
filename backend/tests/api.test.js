@@ -156,6 +156,26 @@ describe('Info Session API', () => {
     expect(getRes.status).toBe(404);
   });
 
+  it('POST /api/admin/seed should require auth', async () => {
+    const res = await request(app).post('/api/admin/seed').send({ count: 30 });
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /api/admin/seed should simulate 30 participants', async () => {
+    await query('DELETE FROM participants');
+    const res = await request(app)
+      .post('/api/admin/seed')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ count: 30 });
+    expect(res.status).toBe(200);
+    expect(res.body.added).toBe(30);
+
+    const tablesRes = await request(app).get('/api/tables');
+    expect(tablesRes.status).toBe(200);
+    expect(tablesRes.body.totals.participants).toBe(30);
+    expect(tablesRes.body.totals.waiting).toBe(30);
+  });
+
   it('POST /api/participants race condition capacity test (50 parallel + rebalance + 25 latecomers)', async () => {
     // Clear DB to test capacity
     await query('DELETE FROM participants');

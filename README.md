@@ -59,7 +59,7 @@ Uygulama Vercel üzerinde aktiftir. Aşağıdaki linklere tıklayarak veya QR ko
 | 🎨 **Kullanıcı Arayüzü (UI)** | ✅ Tamamlandı (Responsive, modern, açık/koyu tema) |
 | 📊 **Anket ve Eşleştirme Mantığı** | ✅ Tamamlandı (8 soru, akıllı puanlama) |
 | 💾 **Backend ve Veritabanı** | ✅ Tamamlandı (Express + Neon Postgres, transaction + advisory lock) |
-| 🔒 **Admin Paneli & Güvenlik** | ✅ Tamamlandı (Token tabanlı doğrulama, IP Rate Limit, kişi silme ve masa taşıma) |
+| 🔒 **Admin Paneli & Güvenlik** | ✅ Tamamlandı (Token tabanlı doğrulama, IP Rate Limit, kişi silme, masa taşıma ve canlı 30 kişilik test simülasyonu) |
 | 📱 **Geç Gelenler (Latecomer)** | ✅ Tamamlandı (Dolu masalara karışmadan boş yere veya bekleme listesine) |
 | 🧪 **Otomatik Testler** | ✅ Tamamlandı (Frontend ve Backend testleri geçiyor) |
 

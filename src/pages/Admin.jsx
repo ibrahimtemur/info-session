@@ -9,6 +9,7 @@ import {
   deleteParticipant,
   rebalance,
   resetAll,
+  seedParticipants,
 } from '../api/client.js'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import ConfirmDialog from '../components/admin/ConfirmDialog.jsx'
@@ -203,6 +204,16 @@ function Dashboard({ onLogout }) {
           {data.tables.length === 0 ? '✨ Masaları Dağıt' : (totals.waiting ?? 0) > 0 ? `🔀 Dağıt (${totals.waiting} yeni)` : '🔀 Yeniden Dağıt'}
         </button>
         <button
+          id="admin-seed"
+          type="button"
+          className={btn.ghost}
+          onClick={() => setConfirm('seed')}
+          disabled={busy}
+          title="Sistemi test etmek için 30 sahte katılımcı simüle eder"
+        >
+          🧪 30 Simüle Et
+        </button>
+        <button
           id="admin-reset"
           type="button"
           className={`${btn.danger} !bg-none`}
@@ -363,6 +374,35 @@ function Dashboard({ onLogout }) {
               <b>Elle yaptığın taşımalar ve şu anki masa numaraları değişir.</b>
             </>
           )}
+        </ConfirmDialog>
+      )}
+
+      {confirm === 'seed' && (
+        <ConfirmDialog
+          title="30 Katılımcı Simüle Edilsin mi?"
+          confirmLabel="Simüle Et"
+          busy={busy}
+          onCancel={() => setConfirm(null)}
+          onConfirm={() => run(() => seedParticipants(30), '30 test katılımcısı simüle edildi 🧪')}
+        >
+          Sistemi ve algoritmayı test etmek için <b>30 sahte katılımcı</b> sisteme eklenecek.
+          {data.tables.length === 0 ? (
+            <>
+              <br />
+              <br />
+              Katılımcılar doğrudan <b>dağıtım havuzuna</b> eklenir. Ardından <b>"Masaları Dağıt"</b> butonuna basarak
+              algoritmanın masaları nasıl oluşturduğunu test edebilirsin.
+            </>
+          ) : (
+            <>
+              <br />
+              <br />
+              Mevcut masalara uygun şekilde yerleştirilirler; kapasite dolarsa bekleme listesi oluşur.
+            </>
+          )}
+          <br />
+          <br />
+          Testin bitince <b>Sıfırla</b> butonu ile tümünü tek tıkla silebilirsin.
         </ConfirmDialog>
       )}
 

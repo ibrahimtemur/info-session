@@ -268,12 +268,28 @@ export async function devSeed(n = 30) {
   fakes.forEach((f, i) => {
     people[f.id] = { id: f.id, name: f.name, answers: f.answers, createdAt: now + i }
   })
+
+  if (db.tables.length === 0) {
+    const next = {
+      ...db,
+      waiting: [
+        ...(db.waiting ?? []),
+        ...fakes.map((f) => ({ id: f.id, name: f.name, vec: buildVector(f.answers), answers: f.answers })),
+      ],
+      people,
+    }
+    saveDb(next)
+    return { status: 'ok', added: n }
+  }
+
   // Yeni sahteler masalara girmeden önce mevcut herkesin yanına eklenir, sonra toplu dağıtılır.
   const merged = {
     tables: db.tables,
     waitlist: [...db.waitlist, ...fakes.map((f) => ({ id: f.id, name: f.name, vec: buildVector(f.answers) }))],
+    waiting: db.waiting ?? [],
   }
   saveDb({ ...rebalanceState(merged, { order: byJoinTime(people) }), people })
+  return { status: 'ok', added: n }
 }
 
 export function devReset() {

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { query } from '../db.js';
 import adminAuth from '../middleware/adminAuth.js';
-import { rebalanceAll, resetDatabase, moveParticipant, SeatingError } from '../services/placement.js';
+import { rebalanceAll, resetDatabase, moveParticipant, seedParticipants, SeatingError } from '../services/placement.js';
 import { tableTheme, iceBreaker, TABLE_CAPACITY, MAX_SEATS } from '../shared/matching.js';
 
 const router = Router();
@@ -66,6 +66,16 @@ router.post('/reset', async (req, res, next) => {
   try {
     await resetDatabase();
     res.json({ status: 'ok' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/seed', async (req, res, next) => {
+  try {
+    const count = typeof req.body?.count === 'number' && req.body.count > 0 ? Math.min(req.body.count, 72) : 30;
+    const added = await seedParticipants(count);
+    res.json({ status: 'ok', added });
   } catch (err) {
     next(err);
   }

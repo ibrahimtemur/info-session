@@ -20,6 +20,7 @@
  *  - doluluk dengesi cezası (sadece geç gelen yerleştirmede)
  */
 import { QUESTIONS } from './questions.js'
+export { fakePeople } from './fakePeople.js'
 
 export const MAX_TABLES = 12
 export const TABLE_CAPACITY = 6
