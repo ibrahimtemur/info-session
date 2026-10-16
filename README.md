@@ -2,7 +2,7 @@
 
 # GDG on Campus · Info Session
 
-**[🇹🇷 Türkçe (Varsayılan)](#-gdg-on-campus--info-session--masa-eşleştirme-uygulaması)** · **[🇬🇧 English](#-gdg-on-campus--info-session--table-matching-web-app)**
+**[<img src="docs/flags/tr.svg" width="20" height="14" alt="" align="absmiddle" /> Türkçe (Varsayılan)](#türkçe)** · **[<img src="docs/flags/gb.svg" width="20" height="14" alt="" align="absmiddle" /> English](#english)**
 
 </div>
 
@@ -10,7 +10,7 @@
 
 <a id="türkçe"></a>
 
-# 🇹🇷 GDG on Campus · Info Session — Masa Eşleştirme Uygulaması
+# <img src="docs/flags/tr.svg" width="28" height="19" alt="" align="absmiddle" /> GDG on Campus · Info Session — Masa Eşleştirme Uygulaması
 
 Bu proje, **GDG on Campus** topluluğunun bir kafede gerçekleştirdiği tanışma etkinliği (**Info Session**) için geliştirilmiş, **Türkçe ve İngilizce (`TR` / `EN`)** çift dil destekli, mobil öncelikli bir masa eşleştirme web uygulamasıdır. Katılımcılar telefonlarından 8 kısa soruluk anketi (1–2 dakika) yanıtlar; sistem verilen cevaplara göre katılımcıları hem ortak ilgi alanlarına sahip hem de çeşitlilik açısından dengeli masalara otomatik olarak yerleştirir. Organizatörler ise masaüstü **Admin Paneli** ve tam ekran **Projektör Görünümü** üzerinden etkinliği canlı olarak yönetir.
 
@@ -269,9 +269,9 @@ Proje tek bir **Vercel** projesi olarak yayınlanır: frontend statik dosyalar, 
 
 <a id="english"></a>
 
-# 🇬🇧 GDG on Campus · Info Session — Table Matching Web App
+# <img src="docs/flags/gb.svg" width="28" height="19" alt="" align="absmiddle" /> GDG on Campus · Info Session — Table Matching Web App
 
-**[⬆️ Türkçe Bölüme Dön](#-gdg-on-campus--info-session--masa-eşleştirme-uygulaması)**
+**[<img src="docs/flags/tr.svg" width="18" height="12" alt="" align="absmiddle" /> Türkçe Bölüme Dön](#türkçe)**
 
 **Info Session** is a mobile-first, bilingual (**Turkish & English — `TR` / `EN`**) table-matching web application built for a **GDG on Campus** community mixer event held in a café. Participants answer 8 short questions on their phone in 1–2 minutes, and the app seats them at a compatible, diverse table. Organizers manage the event live using a desktop **Admin Dashboard** and a full-screen **Projector View**.
 
