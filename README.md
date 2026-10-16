@@ -1,4 +1,4 @@
-# Info Session — Masa Eşleştirme ☕
+# Info Session — Masa Eşleştirme ☕ 
 
 Bu proje, bir kafede gerçekleştirilen ilk topluluk etkinliği için geliştirilmiş bir masa eşleştirme uygulamasıdır. Katılımcılar telefonlarından veya web üzerinden uygulamaya girip 8 soruluk bir anketi doldurur. Sistem, verilen cevaplara göre katılımcıları "en uyumlu" ve "çeşitlilik açısından en dengeli" karma masalara otomatik olarak atar. 
 
