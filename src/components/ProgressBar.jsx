@@ -1,20 +1,30 @@
 import { motion } from 'framer-motion'
 
-/** Üstteki ilerleme çubuğu: "Soru 3 / 8" */
+/** Üstteki ilerleme çubuğu: "Soru 3 / 8" ve "%38" */
 export default function ProgressBar({ current, total }) {
   const pct = Math.round(((current + 1) / total) * 100)
   return (
-    <div className="w-full" role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={current + 1}>
-      <div className="mb-2 flex justify-between text-sm font-extrabold text-brand-600 dark:text-violet-300">
-        <span>Soru {current + 1} / {total}</span>
-        <span>{pct}%</span>
+    <div
+      className="w-full"
+      role="progressbar"
+      aria-valuemin={1}
+      aria-valuemax={total}
+      aria-valuenow={current + 1}
+    >
+      <div className="mb-2 flex items-center justify-between text-sm font-semibold">
+        <span className="font-heading text-[#202124] dark:text-[#E8EAED]">
+          Soru {current + 1} / {total}
+        </span>
+        <span className="rounded-full bg-[#E8F0FE] px-2.5 py-0.5 text-xs font-bold text-[#174EA6] dark:bg-[#174EA6]/40 dark:text-[#8AB4F8]">
+          %{pct}
+        </span>
       </div>
-      <div className="h-3 overflow-hidden rounded-full bg-brand-100 dark:bg-white/10">
+      <div className="h-2.5 overflow-hidden rounded-full bg-[#E8F0FE] dark:bg-[#3C4043]">
         <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-brand-600 via-fuchsia-500 to-pop"
+          className="h-full rounded-full bg-[#4285F4] dark:bg-[#8AB4F8]"
           initial={false}
           animate={{ width: `${pct}%` }}
-          transition={{ type: 'spring', stiffness: 120, damping: 18 }}
+          transition={{ type: 'spring', stiffness: 120, damping: 20 }}
         />
       </div>
     </div>

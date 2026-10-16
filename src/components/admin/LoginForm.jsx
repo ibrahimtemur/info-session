@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { adminLogin } from '../../api/client.js'
-import { btn, messageOf } from './ui.js'
+import Icon, { TonalIcon } from '../Icon.jsx'
+import { messageOf } from './ui.js'
 
-/** Admin parola ekranı. Parola doğrulaması API'de (mock'ta VITE_ADMIN_PASSWORD) yapılır. */
+/** Admin parola ekranı (Screen 10). Parola doğrulaması API'de (mock'ta VITE_ADMIN_PASSWORD) yapılır. */
 export default function LoginForm({ onSuccess }) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
@@ -22,32 +23,61 @@ export default function LoginForm({ onSuccess }) {
   }
 
   return (
-    <form onSubmit={submit} className="card mx-auto mt-16 w-full max-w-sm p-6" aria-labelledby="admin-login-title">
-      <div className="text-5xl" aria-hidden="true">
-        🔐
-      </div>
-      <h1 id="admin-login-title" className="mt-2 text-2xl font-black">
-        Admin girişi
-      </h1>
-      <label htmlFor="admin-password" className="mt-4 block text-sm font-extrabold">
-        Parola
-      </label>
-      <input
-        id="admin-password"
-        type="password"
-        autoComplete="current-password"
-        autoFocus
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="mt-1 min-h-12 w-full rounded-2xl border-2 border-brand-100 bg-white/80 px-4 text-base font-bold outline-none focus:border-brand-500 dark:border-white/15 dark:bg-white/10"
-      />
-      {error && (
-        <p role="alert" className="mt-3 rounded-2xl bg-pop/15 px-4 py-2 text-sm font-extrabold text-pop">
-          {error}
+    <form
+      onSubmit={submit}
+      className="card mx-auto mt-16 w-full max-w-md p-7 sm:p-8"
+      aria-labelledby="admin-login-title"
+    >
+      <div className="flex flex-col items-center text-center">
+        <TonalIcon name="lock" tone="blue" size="lg" />
+        <h1
+          id="admin-login-title"
+          className="font-heading mt-4 text-2xl font-bold text-[#202124] dark:text-[#E8EAED]"
+        >
+          Admin girişi
+        </h1>
+        <p className="mt-1 text-sm text-[#5F6368] dark:text-[#9AA0A6]">
+          Masa yönetim paneline erişmek için organizatör parolasını girin.
         </p>
+      </div>
+
+      <div className="mt-6">
+        <label
+          htmlFor="admin-password"
+          className="mb-1.5 block text-sm font-semibold text-[#202124] dark:text-[#E8EAED]"
+        >
+          Parola
+        </label>
+        <input
+          id="admin-password"
+          type="password"
+          autoComplete="current-password"
+          autoFocus
+          placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className={`input-m3 h-12 px-4 text-base ${error ? 'input-m3-error' : ''}`}
+        />
+      </div>
+
+      {error && (
+        <div
+          role="alert"
+          className="mt-3 flex items-center gap-2 rounded-xl border border-[#EA4335]/40 bg-[#FCE8E6] px-3.5 py-2.5 text-sm font-medium text-[#C5221F] dark:border-[#F28B82]/40 dark:bg-[#8C1D18] dark:text-[#F28B82]"
+        >
+          <Icon name="error" className="text-[18px] shrink-0" />
+          <span>{error}</span>
+        </div>
       )}
-      <button id="admin-login" type="submit" className={`${btn.primary} mt-4 w-full`} disabled={busy || !password}>
-        {busy ? 'Kontrol ediliyor…' : 'Giriş yap'}
+
+      <button
+        id="admin-login"
+        type="submit"
+        className="btn-primary mt-6 w-full"
+        disabled={busy || !password}
+      >
+        <span>{busy ? 'Kontrol ediliyor…' : 'Giriş yap'}</span>
+        {!busy && <Icon name="login" className="text-[20px]" />}
       </button>
     </form>
   )

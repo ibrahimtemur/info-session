@@ -19,18 +19,19 @@
  */
 
 export const INTERESTS = [
-  { value: 'tech', label: 'Teknoloji', emoji: '🚀' },
-  { value: 'art', label: 'Sanat / Tasarım', emoji: '🎨' },
-  { value: 'sport', label: 'Spor', emoji: '⚽' },
-  { value: 'startup', label: 'Girişimcilik', emoji: '💡' },
-  { value: 'musicGame', label: 'Müzik / Oyun', emoji: '🎮' },
+  { value: 'tech', label: 'Teknoloji', icon: 'memory', tone: 'blue' },
+  { value: 'art', label: 'Sanat / Tasarım', icon: 'palette', tone: 'red' },
+  { value: 'sport', label: 'Spor', icon: 'sports_soccer', tone: 'green' },
+  { value: 'startup', label: 'Girişimcilik', icon: 'lightbulb', tone: 'yellow' },
+  { value: 'musicGame', label: 'Müzik / Oyun', icon: 'sports_esports', tone: 'blue' },
 ]
 
 export const QUESTIONS = [
   {
     id: 'crowd',
     type: 'slider',
-    emoji: '🫣',
+    icon: 'groups',
+    tone: 'blue',
     text: 'Tanımadığın bir kalabalığa girince ne hissedersin?',
     min: 1,
     max: 5,
@@ -45,7 +46,8 @@ export const QUESTIONS = [
   {
     id: 'starter',
     type: 'slider',
-    emoji: '🗣️',
+    icon: 'record_voice_over',
+    tone: 'green',
     text: 'Sohbeti genelde sen mi başlatırsın?',
     min: 1,
     max: 5,
@@ -60,7 +62,8 @@ export const QUESTIONS = [
   {
     id: 'interests',
     type: 'multi',
-    emoji: '✨',
+    icon: 'auto_awesome',
+    tone: 'yellow',
     text: 'Seni en çok ne heyecanlandırır?',
     hint: 'En fazla 2 tane seç',
     max: 2,
@@ -73,12 +76,13 @@ export const QUESTIONS = [
   {
     id: 'style',
     type: 'cards',
-    emoji: '💬',
+    icon: 'forum',
+    tone: 'blue',
     text: 'Sohbette hangisisin?',
     options: [
-      { value: 'listener', label: 'Dinleyici', emoji: '👂' },
-      { value: 'talker', label: 'Konuşkan', emoji: '🎤' },
-      { value: 'funny', label: 'Espri odaklı', emoji: '😂' },
+      { value: 'listener', label: 'Dinleyici', icon: 'hearing', tone: 'blue' },
+      { value: 'talker', label: 'Konuşkan', icon: 'mic', tone: 'green' },
+      { value: 'funny', label: 'Espri odaklı', icon: 'sentiment_very_satisfied', tone: 'yellow' },
     ],
     // Ölçtüğü: sohbet tarzı — masada hepsi dinleyici olmasın
     measures: 'sohbet tarzı',
@@ -88,12 +92,13 @@ export const QUESTIONS = [
   {
     id: 'goal',
     type: 'cards',
-    emoji: '🎯',
+    icon: 'flag',
+    tone: 'red',
     text: 'Bu etkinlikten en çok ne bekliyorsun?',
     options: [
-      { value: 'network', label: 'Network', emoji: '🤝' },
-      { value: 'friend', label: 'Arkadaşlık', emoji: '🫶' },
-      { value: 'learn', label: 'Bilgi edinmek', emoji: '📚' },
+      { value: 'network', label: 'Network', icon: 'handshake', tone: 'blue' },
+      { value: 'friend', label: 'Arkadaşlık', icon: 'diversity_3', tone: 'green' },
+      { value: 'learn', label: 'Bilgi edinmek', icon: 'menu_book', tone: 'yellow' },
     ],
     // Ölçtüğü: beklenti — aynı beklentiye sahip olanlar küçük bonus alır
     measures: 'beklenti',
@@ -104,16 +109,17 @@ export const QUESTIONS = [
     id: 'dept',
     type: 'cards',
     optional: true,
-    emoji: '🎓',
+    icon: 'school',
+    tone: 'blue',
     text: 'Hangi alandansın?',
     hint: 'İstersen atlayabilirsin',
     options: [
-      { value: 'engineering', label: 'Mühendislik', emoji: '⚙️' },
-      { value: 'business', label: 'İşletme / İktisat', emoji: '📈' },
-      { value: 'design', label: 'Tasarım / Mimarlık', emoji: '📐' },
-      { value: 'science', label: 'Fen / Sağlık', emoji: '🔬' },
-      { value: 'social', label: 'Sosyal / Hukuk', emoji: '⚖️' },
-      { value: 'other', label: 'Diğer', emoji: '🌈' },
+      { value: 'engineering', label: 'Mühendislik', icon: 'engineering', tone: 'blue' },
+      { value: 'business', label: 'İşletme / İktisat', icon: 'trending_up', tone: 'green' },
+      { value: 'design', label: 'Tasarım / Mimarlık', icon: 'architecture', tone: 'red' },
+      { value: 'science', label: 'Fen / Sağlık', icon: 'science', tone: 'yellow' },
+      { value: 'social', label: 'Sosyal / Hukuk', icon: 'balance', tone: 'blue' },
+      { value: 'other', label: 'Diğer', icon: 'category', tone: 'green' },
     ],
     // Ölçtüğü: bölüm çeşitliliği — masada FARKLI bölümler karışsın
     measures: 'bölüm',
@@ -123,13 +129,14 @@ export const QUESTIONS = [
   {
     id: 'friday',
     type: 'cards',
-    emoji: '🌙',
+    icon: 'dark_mode',
+    tone: 'blue',
     text: 'Cuma gecesi planın nedir?',
     options: [
-      { value: 'home', label: 'Evde dizi & battaniye', emoji: '🛋️', social: -0.6 },
-      { value: 'game', label: 'Oyun / müzik seansı', emoji: '🎧', social: -0.1 },
-      { value: 'out', label: 'Dışarı, arkadaşlarla!', emoji: '🎉', social: 0.7 },
-      { value: 'study', label: 'Ders / proje', emoji: '📖', social: -0.3 },
+      { value: 'home', label: 'Evde dizi & battaniye', icon: 'weekend', tone: 'blue', social: -0.6 },
+      { value: 'game', label: 'Oyun / müzik seansı', icon: 'headphones', tone: 'green', social: -0.1 },
+      { value: 'out', label: 'Dışarı, arkadaşlarla!', icon: 'celebration', tone: 'yellow', social: 0.7 },
+      { value: 'study', label: 'Ders / proje', icon: 'laptop_chromebook', tone: 'red', social: -0.3 },
     ],
     // Ölçtüğü: enerji / sosyal tercih
     measures: 'enerji',
@@ -140,13 +147,14 @@ export const QUESTIONS = [
   {
     id: 'drink',
     type: 'cards',
-    emoji: '☕',
+    icon: 'local_cafe',
+    tone: 'yellow',
     text: 'Kafede ilk siparişin ne olur?',
     options: [
-      { value: 'coffee', label: 'Filtre kahve', emoji: '☕' },
-      { value: 'tea', label: 'Çay', emoji: '🫖' },
-      { value: 'cold', label: 'Soğuk içecek', emoji: '🧋' },
-      { value: 'energy', label: 'Enerji içeceği', emoji: '⚡' },
+      { value: 'coffee', label: 'Filtre kahve', icon: 'coffee', tone: 'blue' },
+      { value: 'tea', label: 'Çay', icon: 'emoji_food_beverage', tone: 'green' },
+      { value: 'cold', label: 'Soğuk içecek', icon: 'ac_unit', tone: 'yellow' },
+      { value: 'energy', label: 'Enerji içeceği', icon: 'bolt', tone: 'red' },
     ],
     // Ölçtüğü: sadece eğlence — buz kırıcı sorusunu kişiselleştirir
     measures: 'eğlence',

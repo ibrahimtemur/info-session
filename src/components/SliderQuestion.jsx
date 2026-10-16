@@ -1,34 +1,35 @@
 import { motion } from 'framer-motion'
 
-const FACES = ['😶', '🙂', '😊', '😄', '🤩']
-
-/** 1-5 arası, tek elle dokunması kolay büyük yuvarlak ölçek (slider yerine). */
+/** 1-5 arası, tek elle dokunması kolay 5 eşit dairesel ölçek butonu. */
 export default function SliderQuestion({ question, value, onChange }) {
   const values = Array.from({ length: question.max - question.min + 1 }, (_, i) => question.min + i)
   return (
-    <div>
-      <div className="flex justify-between gap-2">
-        {values.map((v, i) => (
-          <motion.button
-            key={v}
-            type="button"
-            whileTap={{ scale: 0.9 }}
-            animate={{ scale: value === v ? 1.12 : 1 }}
-            onClick={() => onChange(v)}
-            aria-label={`${v} / ${question.max}`}
-            aria-pressed={value === v}
-            className={`card flex h-16 w-16 flex-col items-center justify-center text-2xl ${
-              value === v ? 'opt-selected' : ''
-            }`}
-          >
-            <span aria-hidden="true">{FACES[i]}</span>
-            <span className="text-xs font-extrabold opacity-60">{v}</span>
-          </motion.button>
-        ))}
+    <div className="card p-5">
+      <div className="flex items-center justify-between gap-2">
+        {values.map((v) => {
+          const selected = value === v
+          return (
+            <motion.button
+              key={v}
+              type="button"
+              whileTap={{ scale: 0.94 }}
+              onClick={() => onChange(v)}
+              aria-label={`${v} / ${question.max}`}
+              aria-pressed={selected}
+              className={`font-heading flex h-14 w-14 items-center justify-center rounded-full text-lg font-bold transition-all ${
+                selected
+                  ? 'bg-[#4285F4] text-white shadow-sm ring-4 ring-[#E8F0FE] dark:bg-[#8AB4F8] dark:text-[#202124] dark:ring-[#174EA6]/50'
+                  : 'border border-[#DADCE0] bg-[#F8F9FA] text-[#202124] hover:border-[#4285F4] hover:bg-[#E8F0FE]/50 dark:border-[#5F6368] dark:bg-[#202124] dark:text-[#E8EAED] dark:hover:border-[#8AB4F8]'
+              }`}
+            >
+              {v}
+            </motion.button>
+          )
+        })}
       </div>
-      <div className="mt-3 flex justify-between text-sm font-bold opacity-70">
-        <span className="max-w-[40%]">{question.minLabel}</span>
-        <span className="max-w-[40%] text-right">{question.maxLabel}</span>
+      <div className="mt-4 flex items-start justify-between gap-4 border-t border-[#DADCE0]/60 pt-3 text-xs font-medium text-[#5F6368] dark:border-[#5F6368]/40 dark:text-[#9AA0A6]">
+        <span className="max-w-[45%] leading-snug">{question.minLabel}</span>
+        <span className="max-w-[45%] text-right leading-snug">{question.maxLabel}</span>
       </div>
     </div>
   )

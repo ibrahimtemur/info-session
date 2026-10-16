@@ -1,18 +1,18 @@
-/** Admin ekranı için ortak Tailwind sınıfları (min 44px dokunma alanı). */
+/** Admin ekranı için ortak Material 3 Tailwind sınıfları (48px+ dokunma hedefleri). */
 const base =
-  'inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full px-4 text-sm font-extrabold transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40'
+  'inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-sm font-semibold transition-colors active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-45'
 
 export const btn = {
-  primary: `${base} bg-gradient-to-br from-brand-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/30`,
-  ghost: `${base} border-2 border-brand-100 bg-white/70 dark:border-white/15 dark:bg-white/10`,
-  danger: `${base} bg-pop text-white shadow-lg shadow-orange-500/30`,
+  primary: `${base} bg-[#4285F4] text-white shadow-sm hover:bg-[#1A73E8] active:bg-[#1A73E8] dark:bg-[#8AB4F8] dark:text-[#202124] dark:hover:bg-[#AECBFA]`,
+  ghost: `${base} border border-[#DADCE0] bg-white text-[#202124] hover:bg-[#F1F3F4] active:bg-[#E8EAED] dark:border-[#5F6368] dark:bg-[#303134] dark:text-[#E8EAED] dark:hover:bg-[#3C4043]`,
+  danger: `${base} bg-[#EA4335] text-white shadow-sm hover:bg-[#C5221F] active:bg-[#C5221F]`,
   small:
-    'inline-flex min-h-9 items-center justify-center rounded-full border-2 border-brand-100 px-3 text-xs font-extrabold transition active:scale-95 hover:bg-brand-50 dark:border-white/15 dark:hover:bg-white/10',
+    'inline-flex min-h-9 items-center justify-center gap-1 rounded-full border border-[#DADCE0] bg-white px-3 text-xs font-semibold text-[#202124] transition-colors hover:border-[#4285F4] hover:bg-[#E8F0FE] hover:text-[#174EA6] dark:border-[#5F6368] dark:bg-[#303134] dark:text-[#E8EAED] dark:hover:border-[#8AB4F8] dark:hover:bg-[#3C4043]',
   smallDanger:
-    'inline-flex min-h-9 items-center justify-center rounded-full border-2 border-pop/30 text-pop px-3 text-xs font-extrabold transition active:scale-95 hover:bg-pop/10 dark:border-pop/40 dark:text-pop dark:hover:bg-pop/20',
+    'inline-flex min-h-9 items-center justify-center gap-1 rounded-full border border-[#EA4335]/35 bg-[#FCE8E6]/70 px-3 text-xs font-semibold text-[#C5221F] transition-colors hover:bg-[#FCE8E6] dark:border-[#F28B82]/35 dark:bg-[#8C1D18]/40 dark:text-[#F28B82] dark:hover:bg-[#8C1D18]/60',
 }
 
 export function messageOf(e) {
-  if (e?.name === 'NetworkError') return 'Bağlantı yok 📡 İnternetini kontrol et.'
+  if (e?.name === 'NetworkError') return 'Bağlantı yok. İnternetini kontrol et.'
   return e?.message || 'Beklenmeyen bir hata oluştu'
 }

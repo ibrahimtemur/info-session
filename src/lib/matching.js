@@ -104,13 +104,13 @@ export function scorePerson(member, tableMembers) {
 // Etiketler
 // ---------------------------------------------------------------------------
 const THEMES = {
-  tech: 'Teknoloji meraklıları 🚀',
-  art: 'Sanat & tasarım tayfası 🎨',
-  sport: 'Spor aşıkları ⚽',
-  startup: 'Girişimci ruhlar 💡',
-  musicGame: 'Müzik & oyun severler 🎮',
+  tech: 'Teknoloji meraklıları',
+  art: 'Sanat & tasarım tayfası',
+  sport: 'Spor aşıkları',
+  startup: 'Girişimci ruhlar',
+  musicGame: 'Müzik & oyun severler',
 }
-export const MIXED_THEME = 'Karma çılgınlar 🎲'
+export const MIXED_THEME = 'Karma masa'
 
 const ICE_BREAKERS = {
   tech: 'Hayatını en çok kolaylaştıran uygulama hangisi, neden?',
@@ -118,7 +118,7 @@ const ICE_BREAKERS = {
   sport: 'Hiç denemediğin ama denemek istediğin spor hangisi?',
   startup: 'Sınırsız bütçen olsa hangi girişimi kurardın?',
   musicGame: 'Şu an en çok döndürdüğün şarkı ya da oyun ne?',
-  mixed: 'Üç kelimeyle kendini anlat, masa tahmin etsin! 🎲',
+  mixed: 'Üç kelimeyle kendini anlat, masa tahmin etsin!',
 }
 
 function dominantInterest(members) {

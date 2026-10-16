@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { dev, getResult } from './api/client.js'
 import OfflineBanner from './components/OfflineBanner.jsx'
 import ThemeToggle from './components/ThemeToggle.jsx'
+import Icon, { GdgBrandMark, TonalIcon } from './components/Icon.jsx'
 import Welcome from './pages/Welcome.jsx'
 import Name from './pages/Name.jsx'
 import Quiz from './pages/Quiz.jsx'
@@ -18,7 +19,16 @@ const isAdminRoute = () => location.pathname.replace(/\/+$/, '') === '/admin'
 export default function App() {
   if (isAdminRoute()) {
     return (
-      <Suspense fallback={<p className="mt-24 text-center text-xl font-extrabold">Yükleniyor… ☕</p>}>
+      <Suspense
+        fallback={
+          <div className="mt-24 flex flex-col items-center gap-3 text-center">
+            <TonalIcon name="hourglass_top" tone="blue" size="lg" />
+            <p className="font-heading text-lg font-semibold text-[#5F6368] dark:text-[#9AA0A6]">
+              Yükleniyor…
+            </p>
+          </div>
+        }
+      >
         <Admin />
       </Suspense>
     )
@@ -49,10 +59,10 @@ function Participant() {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-5 pb-6 pt-4">
+    <div className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col px-5 pb-6 pt-4">
       <OfflineBanner />
-      <header className="mb-2 flex items-center justify-between">
-        <span className="text-lg font-black">☕ Info Session</span>
+      <header className="mb-4 flex items-center justify-between gap-2">
+        <GdgBrandMark />
         <ThemeToggle />
       </header>
 
@@ -60,12 +70,19 @@ function Participant() {
         <motion.main
           key={step}
           className="flex flex-1 flex-col"
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -16 }}
+          exit={{ opacity: 0, y: -12 }}
           transition={{ duration: 0.2 }}
         >
-          {step === 'loading' && <p className="m-auto text-xl font-extrabold">Yükleniyor… ☕</p>}
+          {step === 'loading' && (
+            <div className="m-auto flex flex-col items-center gap-3">
+              <TonalIcon name="local_cafe" tone="blue" size="lg" />
+              <p className="font-heading text-base font-semibold text-[#5F6368] dark:text-[#9AA0A6]">
+                Yükleniyor…
+              </p>
+            </div>
+          )}
           {step === 'welcome' && <Welcome onStart={() => setStep('name')} />}
           {step === 'name' && (
             <Name
@@ -92,15 +109,23 @@ function Participant() {
       </AnimatePresence>
 
       {SHOW_DEV && (
-        <div className="mt-6 flex gap-2 rounded-2xl border-2 border-dashed border-pop p-3 text-sm font-bold">
-          <span className="flex-1">🛠 DEV</span>
-          <button id="dev-seed" type="button" className="rounded-full bg-pop px-3 py-2 text-white" onClick={refresh}>
+        <div className="mt-6 flex items-center gap-2 rounded-2xl border border-dashed border-[#DADCE0] bg-white p-3 text-xs font-semibold dark:border-[#5F6368] dark:bg-[#303134]">
+          <span className="inline-flex flex-1 items-center gap-1.5 text-[#5F6368] dark:text-[#9AA0A6]">
+            <Icon name="build" className="text-[18px]" />
+            DEV
+          </span>
+          <button
+            id="dev-seed"
+            type="button"
+            className="rounded-full bg-[#E8F0FE] px-3.5 py-2 font-semibold text-[#174EA6] transition-colors hover:bg-[#D2E3FC] dark:bg-[#174EA6]/40 dark:text-[#8AB4F8]"
+            onClick={refresh}
+          >
             30 sahte ekle
           </button>
           <button
             id="dev-reset"
             type="button"
-            className="rounded-full bg-brand-600 px-3 py-2 text-white"
+            className="rounded-full bg-[#FCE8E6] px-3.5 py-2 font-semibold text-[#C5221F] transition-colors hover:bg-[#FAD2CF] dark:bg-[#8C1D18]/40 dark:text-[#F28B82]"
             onClick={() => {
               dev.reset()
               location.reload()

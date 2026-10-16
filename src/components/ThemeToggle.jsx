@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Icon from './Icon.jsx'
 
 /** Açık/koyu mod anahtarı; tercih localStorage'da saklanır. */
 export default function ThemeToggle() {
@@ -14,9 +15,9 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label={dark ? 'Açık moda geç' : 'Koyu moda geç'}
-      className="btn-ghost flex h-12 w-12 items-center justify-center text-xl"
+      className="flex h-12 w-12 items-center justify-center rounded-full border border-[#DADCE0] bg-white text-[#5F6368] transition-colors hover:bg-[#F1F3F4] hover:text-[#202124] dark:border-[#5F6368] dark:bg-[#303134] dark:text-[#E8EAED] dark:hover:bg-[#3C4043]"
     >
-      {dark ? '☀️' : '🌙'}
+      <Icon name={dark ? 'light_mode' : 'dark_mode'} className="text-[22px]" />
     </button>
   )
 }
