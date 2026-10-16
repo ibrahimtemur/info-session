@@ -17,7 +17,7 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label={dark ? t.themeLight : t.themeDark}
-      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#DADCE0] bg-white text-[#5F6368] transition-colors hover:bg-[#F1F3F4] hover:text-[#202124] dark:border-[#5F6368] dark:bg-[#303134] dark:text-[#E8EAED] dark:hover:bg-[#3C4043]"
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#DADCE0] bg-white text-[#5F6368] transition-colors hover:bg-[#F1F3F4] hover:text-[#202124] dark:border-[#5F6368] dark:bg-[#303134] dark:text-[#E8EAED] dark:hover:bg-[#3C4043]"
     >
       <Icon name={dark ? 'light_mode' : 'dark_mode'} className="text-[20px]" />
     </button>

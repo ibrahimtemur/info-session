@@ -66,7 +66,7 @@ function Participant() {
       <OfflineBanner />
       <header className="mb-4 flex items-center justify-between gap-2">
         <GdgBrandMark />
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5">
           <LanguageToggle />
           <ThemeToggle />
         </div>

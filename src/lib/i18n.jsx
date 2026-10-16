@@ -518,7 +518,7 @@ export function LanguageToggle({ className = '' }) {
       onClick={toggleLang}
       aria-label={t.langSwitchLabel}
       title={t.langSwitchLabel}
-      className={`font-heading flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#DADCE0] bg-white text-xs font-bold tracking-wide text-[#202124] transition-colors hover:bg-[#F1F3F4] dark:border-[#5F6368] dark:bg-[#303134] dark:text-[#E8EAED] dark:hover:bg-[#3C4043] ${className}`}
+      className={`font-heading flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#DADCE0] bg-white text-xs font-bold tracking-wide text-[#202124] transition-colors hover:bg-[#F1F3F4] dark:border-[#5F6368] dark:bg-[#303134] dark:text-[#E8EAED] dark:hover:bg-[#3C4043] ${className}`}
     >
       {lang === 'tr' ? 'EN' : 'TR'}
     </button>
