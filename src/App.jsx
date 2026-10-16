@@ -19,40 +19,23 @@ const isAdminRoute = () => location.pathname.replace(/\/+$/, '') === '/admin'
 /** Basit yol ayrımı: /admin -> yönetim paneli, diğer her şey katılımcı akışı. */
 export default function App() {
   const { t } = useI18n()
-  return (
-    <div className="relative min-h-dvh overflow-x-hidden">
-      {/* Sitenin sağ üst köşesinde zarif şeffaf GDG logosu */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed -top-5 -right-5 z-0 select-none overflow-hidden opacity-[0.10] transition-opacity dark:opacity-[0.15] sm:-top-8 sm:-right-8"
+  if (isAdminRoute()) {
+    return (
+      <Suspense
+        fallback={
+          <div className="mt-24 flex flex-col items-center gap-3 text-center">
+            <TonalIcon name="hourglass_top" tone="blue" size="lg" />
+            <p className="font-heading text-lg font-semibold text-[#5F6368] dark:text-[#9AA0A6]">
+              {t.loading}
+            </p>
+          </div>
+        }
       >
-        <img
-          src="/favicon.svg"
-          alt=""
-          className="h-36 w-36 rotate-12 sm:h-52 sm:w-52"
-        />
-      </div>
-
-      <div className="relative z-10">
-        {isAdminRoute() ? (
-          <Suspense
-            fallback={
-              <div className="mt-24 flex flex-col items-center gap-3 text-center">
-                <TonalIcon name="hourglass_top" tone="blue" size="lg" />
-                <p className="font-heading text-lg font-semibold text-[#5F6368] dark:text-[#9AA0A6]">
-                  {t.loading}
-                </p>
-              </div>
-            }
-          >
-            <Admin />
-          </Suspense>
-        ) : (
-          <Participant />
-        )}
-      </div>
-    </div>
-  )
+        <Admin />
+      </Suspense>
+    )
+  }
+  return <Participant />
 }
 
 function Participant() {
