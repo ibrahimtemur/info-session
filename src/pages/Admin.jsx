@@ -13,6 +13,7 @@ import {
 } from '../api/client.js'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import Icon, { DesignerCredit, GdgBrandMark, TonalIcon } from '../components/Icon.jsx'
+import { LanguageToggle, useI18n } from '../lib/i18n.jsx'
 import ConfirmDialog from '../components/admin/ConfirmDialog.jsx'
 import LoginForm from '../components/admin/LoginForm.jsx'
 import MoveDialog from '../components/admin/MoveDialog.jsx'
@@ -23,14 +24,15 @@ import { btn, messageOf } from '../components/admin/ui.js'
 /** /admin — parola kapısı + yönetim paneli (Screen 10 & 11). */
 export default function Admin() {
   const [authed, setAuthed] = useState(hasAdminToken())
+  const { t } = useI18n()
 
   useEffect(() => {
     const prev = document.title
-    document.title = 'Admin · Masa Yönetimi · Info Session'
+    document.title = t.adminDocTitle
     return () => {
       document.title = prev
     }
-  }, [])
+  }, [t.adminDocTitle])
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col justify-between px-4 pb-8 pt-4 sm:px-6 lg:px-8">
@@ -41,7 +43,10 @@ export default function Admin() {
           <>
             <header className="flex items-center justify-between">
               <GdgBrandMark />
-              <ThemeToggle />
+              <div className="flex items-center gap-2">
+                <LanguageToggle />
+                <ThemeToggle />
+              </div>
             </header>
             <LoginForm onSuccess={() => setAuthed(true)} />
           </>
@@ -78,6 +83,7 @@ function Dashboard({ onLogout }) {
   const [toast, setToast] = useState(null)
   const [projector, setProjector] = useState(false)
   const toastTimer = useRef(null)
+  const { lang, t } = useI18n()
 
   const logout = useCallback(() => {
     adminLogout()
@@ -96,9 +102,9 @@ function Dashboard({ onLogout }) {
       setLoadError(null)
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) return logout()
-      setLoadError(messageOf(e))
+      setLoadError(messageOf(e, lang))
     }
-  }, [logout])
+  }, [logout, lang])
 
   useEffect(() => {
     load()
@@ -116,7 +122,7 @@ function Dashboard({ onLogout }) {
       notify(typeof okText === 'function' ? okText(r) : okText)
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) return logout()
-      notify(messageOf(e), 'error')
+      notify(messageOf(e, lang), 'error')
     } finally {
       setBusy(false)
       setMoving(null)
@@ -133,12 +139,12 @@ function Dashboard({ onLogout }) {
       const url = URL.createObjectURL(new Blob(['\ufeff', csv], { type: 'text/csv;charset=utf-8' }))
       const a = document.createElement('a')
       a.href = url
-      a.download = `katilimcilar-${new Date().toISOString().slice(0, 10)}.csv`
+      a.download = `${t.csvFilenamePrefix}-${new Date().toISOString().slice(0, 10)}.csv`
       document.body.appendChild(a)
       a.click()
       a.remove()
       URL.revokeObjectURL(url)
-    }, 'CSV indirildi')
+    }, t.toastCsvDownloaded)
 
   const exitProjector = useCallback(() => setProjector(false), [])
 
@@ -147,7 +153,7 @@ function Dashboard({ onLogout }) {
       <div className="mt-24 flex flex-col items-center gap-3 text-center" role="status">
         <TonalIcon name="hourglass_top" tone="blue" size="lg" />
         <p className="font-heading text-lg font-semibold text-[#5F6368] dark:text-[#9AA0A6]">
-          {loadError ?? 'Yükleniyor…'}
+          {loadError ?? t.loading}
         </p>
       </div>
     )
@@ -162,14 +168,15 @@ function Dashboard({ onLogout }) {
           <GdgBrandMark />
           <span className="hidden text-[#DADCE0] sm:inline dark:text-[#5F6368]">|</span>
           <h1 className="font-heading text-xl font-bold text-[#202124] sm:text-2xl dark:text-[#E8EAED]">
-            Masa Yönetimi
+            {t.adminTitle}
           </h1>
         </div>
         <div className="flex items-center gap-2.5">
           <button id="admin-logout" type="button" className={btn.ghost} onClick={logout}>
             <Icon name="logout" className="text-[18px]" />
-            <span>Çıkış</span>
+            <span>{t.adminLogout}</span>
           </button>
+          <LanguageToggle />
           <ThemeToggle />
         </div>
       </header>
@@ -180,27 +187,29 @@ function Dashboard({ onLogout }) {
           className="mb-4 flex items-center gap-2.5 rounded-2xl border border-[#EA4335]/40 bg-[#FCE8E6] px-4 py-3 text-sm font-medium text-[#C5221F] dark:border-[#F28B82]/40 dark:bg-[#8C1D18] dark:text-[#F28B82]"
         >
           <Icon name="error" className="text-[20px] shrink-0" />
-          <span>{loadError} — son veri gösteriliyor</span>
+          <span>
+            {loadError} — {t.adminStaleData}
+          </span>
         </div>
       )}
 
       {/* 4 Özet İstatistik Kartı */}
-      <section aria-label="Özet" className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
-        <Stat label="Katılımcı" value={totals.participants} icon="groups" tone="blue" />
+      <section aria-label={t.adminSummaryAria} className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
+        <Stat label={t.statParticipants} value={totals.participants} icon="groups" tone="blue" />
         <Stat
-          label="Masada"
-          value={`${totals.seated} · ${totals.tableCount} masa`}
+          label={t.statSeated}
+          value={t.statSeatedVal(totals.seated, totals.tableCount)}
           icon="table_restaurant"
           tone="green"
         />
         <Stat
-          label="Dağıtım Bekleyen"
+          label={t.statWaiting}
           value={totals.waiting ?? 0}
           icon="hourglass_top"
           tone="yellow"
         />
         <Stat
-          label="Bekleme Listesi"
+          label={t.statWaitlist}
           value={totals.waitlisted}
           icon="schedule"
           tone="red"
@@ -219,10 +228,10 @@ function Dashboard({ onLogout }) {
             />
             <div>
               <p className="font-heading text-base font-bold sm:text-lg">
-                {totals.waiting} katılımcı havuzda dağıtım bekliyor!
+                {t.bannerWaitingTitle(totals.waiting)}
               </p>
               <p className="text-xs font-medium text-[#174EA6]/80 dark:text-[#9AA0A6]">
-                Katılımcılar şu anda bekleme ekranında. Hazır olduğunda masaları dağıtabilirsin.
+                {t.bannerWaitingSub}
               </p>
             </div>
           </div>
@@ -234,15 +243,18 @@ function Dashboard({ onLogout }) {
           >
             <Icon name="auto_awesome" className="text-[18px]" />
             <span>
-              {data.tables.length === 0 ? 'Masaları Dağıt' : 'Dağıtımı Güncelle'} ({totals.waiting}{' '}
-              kişi)
+              {data.tables.length === 0 ? t.btnDistributeTables : t.btnUpdateDistribution} (
+              {t.personCount(totals.waiting)})
             </span>
           </button>
         </div>
       )}
 
       {/* Aksiyon Araç Çubuğu */}
-      <section aria-label="İşlemler" className="mt-5 grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap">
+      <section
+        aria-label={t.actionsAria}
+        className="mt-5 grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap"
+      >
         <button
           id="admin-projector"
           type="button"
@@ -250,7 +262,7 @@ function Dashboard({ onLogout }) {
           onClick={() => setProjector(true)}
         >
           <Icon name="tv" className="text-[18px]" />
-          <span>Masa Listesi</span>
+          <span>{t.btnProjector}</span>
         </button>
         <button
           id="admin-export"
@@ -260,7 +272,7 @@ function Dashboard({ onLogout }) {
           disabled={busy}
         >
           <Icon name="download" className="text-[18px]" />
-          <span>CSV indir</span>
+          <span>{t.btnExportCsv}</span>
         </button>
         <button
           id="admin-rebalance"
@@ -274,10 +286,10 @@ function Dashboard({ onLogout }) {
           <Icon name="shuffle" className="text-[18px]" />
           <span>
             {data.tables.length === 0
-              ? 'Masaları Dağıt'
+              ? t.btnDistributeTables
               : (totals.waiting ?? 0) > 0
-                ? `Yeniden Dağıt (${totals.waiting} yeni)`
-                : 'Yeniden Dağıt'}
+                ? t.btnRedistributeNew(totals.waiting)
+                : t.btnRedistribute}
           </span>
         </button>
         <button
@@ -286,10 +298,10 @@ function Dashboard({ onLogout }) {
           className={btn.ghost}
           onClick={() => setConfirm('seed')}
           disabled={busy}
-          title="Sistemi test etmek için 30 sahte katılımcı simüle eder"
+          title={t.btnSimulateTitle}
         >
           <Icon name="science" className="text-[18px]" />
-          <span>30 Simüle Et</span>
+          <span>{t.btnSimulate}</span>
         </button>
         <button
           id="admin-reset"
@@ -299,7 +311,7 @@ function Dashboard({ onLogout }) {
           disabled={busy || totals.participants === 0}
         >
           <Icon name="delete_forever" className="text-[18px]" />
-          <span>Sıfırla</span>
+          <span>{t.btnReset}</span>
         </button>
         <button
           id="admin-refresh"
@@ -309,21 +321,21 @@ function Dashboard({ onLogout }) {
           disabled={busy}
         >
           <Icon name="refresh" className="text-[18px]" />
-          <span>Yenile</span>
+          <span>{t.btnRefresh}</span>
         </button>
       </section>
 
       {/* Masa Kartları Izgarası */}
       <section
-        aria-label="Masalar"
+        aria-label={t.tablesAria}
         className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
       >
         {[...data.tables]
           .sort((a, b) => a.number - b.number)
-          .map((t) => (
+          .map((tbl) => (
             <TableCard
-              key={t.number}
-              table={t}
+              key={tbl.number}
+              table={tbl}
               onMove={(member, from) => setMoving({ member, from })}
               onDelete={(member) => setDeleting(member)}
             />
@@ -336,11 +348,10 @@ function Dashboard({ onLogout }) {
             <div className="flex flex-col items-center">
               <TonalIcon name="groups" tone="blue" size="lg" />
               <p className="font-heading mt-4 text-xl font-bold text-[#202124] dark:text-[#E8EAED]">
-                Havuzda {totals.waiting} katılımcı hazır bekliyor!
+                {t.emptyPoolReadyTitle(totals.waiting)}
               </p>
               <p className="mx-auto mt-2 max-w-md text-sm text-[#5F6368] dark:text-[#9AA0A6]">
-                Katılımcıların karakter testleri tamamlandı. Masaları en uyumlu şekilde oluşturmak
-                için dağıtımı başlatabilirsin.
+                {t.emptyPoolReadySub}
               </p>
               <button
                 type="button"
@@ -349,14 +360,16 @@ function Dashboard({ onLogout }) {
                 disabled={busy}
               >
                 <Icon name="auto_awesome" className="text-[18px]" />
-                <span>Masaları Dağıt ({totals.waiting} kişi)</span>
+                <span>
+                  {t.btnDistributeTables} ({t.personCount(totals.waiting)})
+                </span>
               </button>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
               <TonalIcon name="event_seat" tone="neutral" size="lg" />
               <p className="font-heading mt-2 text-base font-semibold text-[#5F6368] dark:text-[#9AA0A6]">
-                Henüz katılımcı yok. İlk kayıt geldiğinde masalar burada görünür.
+                {t.emptyNoParticipants}
               </p>
             </div>
           )}
@@ -364,16 +377,16 @@ function Dashboard({ onLogout }) {
       )}
 
       {data.waiting && data.waiting.length > 0 && (
-        <section aria-label="Havuzda bekleyenler" className="card mt-6 p-5" id="waiting-pool">
+        <section aria-label={t.waitingPoolAria} className="card mt-6 p-5" id="waiting-pool">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2.5">
               <TonalIcon name="hourglass_top" tone="yellow" size="sm" />
               <h2 className="font-heading text-lg font-bold text-[#202124] dark:text-[#E8EAED]">
-                Dağıtım Bekleyen Katılımcılar ({data.waiting.length})
+                {t.waitingPoolHeading(data.waiting.length)}
               </h2>
             </div>
             <span className="rounded-full bg-[#FEF7E0] px-3 py-1 text-xs font-semibold text-[#B06000] dark:bg-[#7A4B00]/40 dark:text-[#FDD663]">
-              Admin dağıtımı bekleniyor
+              {t.waitingPoolBadge}
             </span>
           </div>
           <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -390,11 +403,11 @@ function Dashboard({ onLogout }) {
                   type="button"
                   className={btn.smallDanger}
                   onClick={() => setDeleting(w)}
-                  aria-label={`${w.name} kişisini sil`}
-                  title="Katılımcıyı sil"
+                  aria-label={t.ariaDeletePerson(w.name)}
+                  title={t.titleDeletePerson}
                 >
                   <Icon name="delete" className="text-[15px]" />
-                  <span>Sil</span>
+                  <span>{t.btnDelete}</span>
                 </button>
               </li>
             ))}
@@ -403,11 +416,11 @@ function Dashboard({ onLogout }) {
       )}
 
       {data.waitlist.length > 0 && (
-        <section aria-label="Bekleme listesi" className="card mt-6 p-5" id="waitlist">
+        <section aria-label={t.waitlistAria} className="card mt-6 p-5" id="waitlist">
           <div className="flex items-center gap-2.5">
             <TonalIcon name="schedule" tone="red" size="sm" />
             <h2 className="font-heading text-lg font-bold text-[#202124] dark:text-[#E8EAED]">
-              Bekleme listesi ({data.waitlist.length})
+              {t.waitlistHeading(data.waitlist.length)}
             </h2>
           </div>
           <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -427,18 +440,18 @@ function Dashboard({ onLogout }) {
                     onClick={() => setMoving({ member: w, from: null })}
                   >
                     <Icon name="swap_horiz" className="text-[15px]" />
-                    <span>Masaya al</span>
+                    <span>{t.btnSeatFromWaitlist}</span>
                   </button>
                   <button
                     id={`delete-${w.id}`}
                     type="button"
                     className={btn.smallDanger}
                     onClick={() => setDeleting(w)}
-                    aria-label={`${w.name} kişisini sil`}
-                    title="Katılımcıyı sil"
+                    aria-label={t.ariaDeletePerson(w.name)}
+                    title={t.titleDeletePerson}
                   >
                     <Icon name="delete" className="text-[15px]" />
-                    <span>Sil</span>
+                    <span>{t.btnDelete}</span>
                   </button>
                 </div>
               </li>
@@ -455,60 +468,61 @@ function Dashboard({ onLogout }) {
           busy={busy}
           onClose={() => setMoving(null)}
           onPick={(n) =>
-            run(() => moveParticipant(moving.member.id, n), `${moving.member.name} → Masa ${n}`)
+            run(() => moveParticipant(moving.member.id, n), t.toastMoved(moving.member.name, n))
           }
         />
       )}
 
       {deleting && (
         <ConfirmDialog
-          title={`${deleting.name} silinsin mi?`}
-          confirmLabel="Evet, sil"
+          title={t.deleteDialogTitle(deleting.name)}
+          confirmLabel={t.deleteConfirmBtn}
           danger
           busy={busy}
           onCancel={() => setDeleting(null)}
-          onConfirm={() => run(() => deleteParticipant(deleting.id), `${deleting.name} silindi`)}
+          onConfirm={() =>
+            run(() => deleteParticipant(deleting.id), t.toastDeleted(deleting.name))
+          }
         >
           <strong className="font-semibold text-[#202124] dark:text-[#E8EAED]">
             {deleting.name}
           </strong>{' '}
-          sistemden tamamen silinecek. Boşalan koltuğa başka biri oturabilir veya aynı cihazla
-          yeniden kayıt olabilir.{' '}
+          {t.deleteDialogBody1}{' '}
           <strong className="font-semibold text-[#C5221F] dark:text-[#F28B82]">
-            Bu işlem geri alınamaz.
+            {t.irreversibleWarning}
           </strong>
         </ConfirmDialog>
       )}
 
       {confirm === 'rebalance' && (
         <ConfirmDialog
-          title={data.tables.length === 0 ? 'Masalar dağıtılsın mı?' : 'Yeniden dağıtılsın mı?'}
-          confirmLabel={data.tables.length === 0 ? 'Masaları Dağıt' : 'Yeniden Dağıt'}
+          title={
+            data.tables.length === 0 ? t.rebalanceDialogTitleInitial : t.rebalanceDialogTitleAgain
+          }
+          confirmLabel={data.tables.length === 0 ? t.btnDistributeTables : t.btnRedistribute}
           busy={busy}
           onCancel={() => setConfirm(null)}
           onConfirm={() =>
             run(rebalance, (r) =>
               data.tables.length === 0
-                ? `Masalar dağıtıldı: ${r.totals.seated} kişi, ${r.totals.tableCount} masa`
-                : `Yeniden dağıtıldı: ${r.totals.seated} kişi, ${r.totals.tableCount} masa`,
+                ? t.toastDistributed(r.totals.seated, r.totals.tableCount)
+                : t.toastRedistributed(r.totals.seated, r.totals.tableCount),
             )
           }
         >
           {data.tables.length === 0 ? (
             <>
-              Havuzdaki{' '}
+              {t.rebalanceBodyInitialPrefix}
               <strong className="font-semibold text-[#202124] dark:text-[#E8EAED]">
-                {totals.participants} katılımcı
+                {t.rebalanceBodyInitialCount(totals.participants)}
               </strong>
-              , ilgi alanları ve karakter testlerine göre en uyumlu masalara yerleştirilecek.
-              Katılımcıların ekranlarında masaları otomatik olarak belirecek.
+              {t.rebalanceBodyInitialSuffix}
             </>
           ) : (
             <>
-              Tüm katılımcılar ({totals.participants} kişi) baştan eşleştirme algoritmasıyla
-              dağıtılır.{' '}
+              {t.rebalanceBodyAgainPrefix(totals.participants)}
               <strong className="font-semibold text-[#202124] dark:text-[#E8EAED]">
-                Elle yaptığın taşımalar ve şu anki masa numaraları değişir.
+                {t.rebalanceBodyAgainStrong}
               </strong>
             </>
           )}
@@ -517,60 +531,60 @@ function Dashboard({ onLogout }) {
 
       {confirm === 'seed' && (
         <ConfirmDialog
-          title="30 Katılımcı Simüle Edilsin mi?"
-          confirmLabel="Simüle Et"
+          title={t.seedDialogTitle}
+          confirmLabel={t.seedConfirmBtn}
           busy={busy}
           onCancel={() => setConfirm(null)}
-          onConfirm={() => run(() => seedParticipants(30), '30 test katılımcısı simüle edildi')}
+          onConfirm={() => run(() => seedParticipants(30), t.toastSimulated)}
         >
-          Sistemi ve algoritmayı test etmek için{' '}
+          {t.seedBodyIntroPrefix}
           <strong className="font-semibold text-[#202124] dark:text-[#E8EAED]">
-            30 sahte katılımcı
-          </strong>{' '}
-          sisteme eklenecek.
+            {t.seedBodyIntroStrong}
+          </strong>
+          {t.seedBodyIntroSuffix}
           {data.tables.length === 0 ? (
             <>
               <br />
               <br />
-              Katılımcılar doğrudan{' '}
+              {t.seedBodyPool1}
               <strong className="font-semibold text-[#202124] dark:text-[#E8EAED]">
-                dağıtım havuzuna
-              </strong>{' '}
-              eklenir. Ardından{' '}
+                {t.seedBodyPoolStrong1}
+              </strong>
+              {t.seedBodyPool2}
               <strong className="font-semibold text-[#202124] dark:text-[#E8EAED]">
-                &ldquo;Masaları Dağıt&rdquo;
-              </strong>{' '}
-              butonuna basarak algoritmanın masaları nasıl oluşturduğunu test edebilirsin.
+                {t.seedBodyPoolStrong2}
+              </strong>
+              {t.seedBodyPool3}
             </>
           ) : (
             <>
               <br />
               <br />
-              Mevcut masalara uygun şekilde yerleştirilirler; kapasite dolarsa bekleme listesi
-              oluşur.
+              {t.seedBodyDirect}
             </>
           )}
           <br />
           <br />
-          Testin bitince <strong className="font-semibold">Sıfırla</strong> butonu ile tümünü tek
-          tıkla silebilirsin.
+          {t.seedBodyFooter1}
+          <strong className="font-semibold">{t.seedBodyFooterStrong}</strong>
+          {t.seedBodyFooter2}
         </ConfirmDialog>
       )}
 
       {confirm === 'reset' && (
         <ConfirmDialog
-          title="Tüm veriler silinsin mi?"
-          confirmLabel="Evet, sıfırla"
+          title={t.resetDialogTitle}
+          confirmLabel={t.resetConfirmBtn}
           danger
           busy={busy}
           onCancel={() => setConfirm(null)}
-          onConfirm={() => run(resetAll, 'Tüm katılımcılar silindi')}
+          onConfirm={() => run(resetAll, t.toastReset)}
         >
-          {totals.participants} katılımcının tamamı ve masa yerleşimi silinir.{' '}
+          {t.resetBodyPrefix(totals.participants)}
           <strong className="font-semibold text-[#C5221F] dark:text-[#F28B82]">
-            Bu işlem geri alınamaz.
-          </strong>{' '}
-          Gerekirse önce CSV indir.
+            {t.irreversibleWarning}
+          </strong>
+          {t.resetBodySuffix}
         </ConfirmDialog>
       )}
 
@@ -580,7 +594,9 @@ function Dashboard({ onLogout }) {
         <div
           role="status"
           className={`fixed inset-x-4 bottom-4 z-[60] mx-auto flex max-w-md items-center justify-center gap-2 rounded-2xl px-4 py-3 text-center text-sm font-semibold text-white shadow-lg ${
-            toast.kind === 'error' ? 'bg-[#EA4335]' : 'bg-[#202124] dark:bg-[#E8EAED] dark:text-[#202124]'
+            toast.kind === 'error'
+              ? 'bg-[#EA4335]'
+              : 'bg-[#202124] dark:bg-[#E8EAED] dark:text-[#202124]'
           }`}
         >
           <Icon

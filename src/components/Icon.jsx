@@ -150,12 +150,15 @@ export function GdgBrandMark({ subtitle }) {
   )
 }
 
+import { useI18n } from '../lib/i18n.jsx'
+
 export function DesignerCredit({ className = '' }) {
+  const { t } = useI18n()
   return (
     <footer
       className={`mt-6 flex items-center justify-center gap-1.5 text-center text-[11px] font-medium tracking-wide text-[#5F6368]/75 dark:text-[#9AA0A6]/70 ${className}`}
     >
-      <span>Geliştirici</span>
+      <span>{t.developer}</span>
       <span aria-hidden="true" className="text-[#DADCE0] dark:text-[#5F6368]">
         ·
       </span>

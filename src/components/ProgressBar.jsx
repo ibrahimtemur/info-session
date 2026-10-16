@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion'
+import { useI18n } from '../lib/i18n.jsx'
 
 /** Üstteki ilerleme çubuğu: "Soru 3 / 8" ve "%38" */
 export default function ProgressBar({ current, total }) {
+  const { t } = useI18n()
   const pct = Math.round(((current + 1) / total) * 100)
   return (
     <div
@@ -13,10 +15,10 @@ export default function ProgressBar({ current, total }) {
     >
       <div className="mb-2 flex items-center justify-between text-sm font-semibold">
         <span className="font-heading text-[#202124] dark:text-[#E8EAED]">
-          Soru {current + 1} / {total}
+          {t.questionProgress(current + 1, total)}
         </span>
         <span className="rounded-full bg-[#E8F0FE] px-2.5 py-0.5 text-xs font-bold text-[#174EA6] dark:bg-[#174EA6]/40 dark:text-[#8AB4F8]">
-          %{pct}
+          {t.formatPercent(pct)}
         </span>
       </div>
       <div className="h-2.5 overflow-hidden rounded-full bg-[#E8F0FE] dark:bg-[#3C4043]">

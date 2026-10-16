@@ -1,7 +1,9 @@
 import Icon, { TonalIcon } from '../components/Icon.jsx'
+import { useI18n } from '../lib/i18n.jsx'
 
 /** Karşılama ekranı (Screen 1: Light & Dark) */
 export default function Welcome({ onStart }) {
+  const { t } = useI18n()
   return (
     <div className="flex flex-1 flex-col justify-between pt-2">
       <div>
@@ -10,8 +12,8 @@ export default function Welcome({ onStart }) {
           <svg
             viewBox="0 0 320 200"
             className="h-44 w-full max-w-[300px]"
-             role="img"
-            aria-label="Kahve fincanı ve dört Google renkli sandalyeli yuvarlak masa illüstrasyonu"
+            role="img"
+            aria-label={t.welcomeSvgAlt}
           >
             {/* Arka plan tonal daireler */}
             <circle cx="72" cy="48" r="24" fill="#E8F0FE" opacity="0.9" />
@@ -93,11 +95,11 @@ export default function Welcome({ onStart }) {
         </div>
 
         <h1 className="font-heading text-3xl font-bold leading-tight tracking-tight text-[#202124] sm:text-4xl dark:text-[#E8EAED]">
-          Info Session&apos;a{' '}
-          <span className="text-[#4285F4] dark:text-[#8AB4F8]">hoş geldin!</span>
+          {t.welcomeTitlePrefix}
+          <span className="text-[#4285F4] dark:text-[#8AB4F8]">{t.welcomeTitleAccent}</span>
         </h1>
         <p className="mt-3 text-base leading-relaxed text-[#5F6368] sm:text-lg dark:text-[#9AA0A6]">
-          8 kısa soru, 1-2 dakika. Sana en uygun masayı bulalım; yeni insanlarla tanış, kaynaş!
+          {t.welcomeSubtitle}
         </p>
       </div>
 
@@ -109,13 +111,11 @@ export default function Welcome({ onStart }) {
             size="sm"
             className="bg-white/80 dark:bg-[#303134]"
           />
-          <p className="pt-0.5 font-medium">
-            Anketi sadece bir kez doldurabilirsin, o yüzden içinden geldiği gibi cevapla.
-          </p>
+          <p className="pt-0.5 font-medium">{t.welcomeInfoNote}</p>
         </div>
 
         <button type="button" className="btn-primary w-full" onClick={onStart}>
-          <span>Hadi başlayalım</span>
+          <span>{t.welcomeCta}</span>
           <Icon name="arrow_forward" className="text-[20px]" />
         </button>
       </div>

@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import Icon, { TonalIcon } from '../components/Icon.jsx'
+import { useI18n } from '../lib/i18n.jsx'
 
 /** İsim ekranı (Screen 2): boş isim engellenir, gizlilik notu gösterilir. */
 export default function Name({ initial = '', onNext, onBack }) {
   const [name, setName] = useState(initial)
   const [touched, setTouched] = useState(false)
+  const { t } = useI18n()
   const trimmed = name.trim()
   const invalid = trimmed.length < 2
 
@@ -18,15 +20,13 @@ export default function Name({ initial = '', onNext, onBack }) {
     <form onSubmit={submit} className="flex flex-1 flex-col pt-2">
       <TonalIcon name="badge" tone="blue" size="lg" />
       <h2 className="font-heading mt-4 text-2xl font-bold leading-tight text-[#202124] sm:text-3xl dark:text-[#E8EAED]">
-        Sana nasıl hitap edelim?
+        {t.nameTitle}
       </h2>
-      <p className="mt-1.5 text-base text-[#5F6368] dark:text-[#9AA0A6]">
-        Masandakiler seni bu isimle görecek.
-      </p>
+      <p className="mt-1.5 text-base text-[#5F6368] dark:text-[#9AA0A6]">{t.nameHelper}</p>
 
       <div className="mt-6">
         <label htmlFor="name-input" className="sr-only">
-          Adın (veya takma adın)
+          {t.namePlaceholder}
         </label>
         <input
           id="name-input"
@@ -34,7 +34,7 @@ export default function Name({ initial = '', onNext, onBack }) {
           onChange={(e) => setName(e.target.value)}
           maxLength={24}
           autoComplete="given-name"
-          placeholder="Adın (veya takma adın)"
+          placeholder={t.namePlaceholder}
           aria-invalid={touched && invalid}
           className={`input-m3 h-14 px-4 text-lg font-medium ${
             touched && invalid ? 'input-m3-error' : ''
@@ -46,7 +46,7 @@ export default function Name({ initial = '', onNext, onBack }) {
             className="mt-2 flex items-center gap-1.5 text-sm font-medium text-[#EA4335] dark:text-[#F28B82]"
           >
             <Icon name="error" className="text-[18px]" />
-            <span>Bir isim yazmadan devam edemeyiz</span>
+            <span>{t.nameError}</span>
           </p>
         )}
       </div>
@@ -55,10 +55,9 @@ export default function Name({ initial = '', onNext, onBack }) {
         <TonalIcon name="shield_lock" tone="green" size="sm" />
         <p className="text-[#5F6368] dark:text-[#9AA0A6]">
           <strong className="font-semibold text-[#202124] dark:text-[#E8EAED]">
-            Gizlilik notu:
+            {t.privacyTitle}
           </strong>{' '}
-          Verilerin sadece bu etkinlikte masa eşleştirmek için kullanılır, başka bir amaçla
-          paylaşılmaz.
+          {t.privacyBody}
         </p>
       </div>
 
@@ -67,12 +66,12 @@ export default function Name({ initial = '', onNext, onBack }) {
           type="button"
           className="btn-ghost flex h-14 w-14 shrink-0 items-center justify-center"
           onClick={onBack}
-          aria-label="Geri"
+          aria-label={t.back}
         >
           <Icon name="arrow_back" className="text-[22px]" />
         </button>
         <button type="submit" className="btn-primary flex-1">
-          <span>Devam et</span>
+          <span>{t.continue}</span>
           <Icon name="arrow_forward" className="text-[20px]" />
         </button>
       </div>

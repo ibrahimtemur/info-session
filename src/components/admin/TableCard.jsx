@@ -1,8 +1,10 @@
 import Icon, { getTablePalette } from '../Icon.jsx'
+import { useI18n } from '../../lib/i18n.jsx'
 import { btn } from './ui.js'
 
 /** Tek masa kartı (Screen 11): Google rengi + doluluk çubuğu (dolunca kırmızı) + oturanlar + "Taşı"/"Sil" butonları. */
 export default function TableCard({ table, onMove, onDelete }) {
+  const { t, translateTheme } = useI18n()
   const pct = Math.round((table.count / table.capacity) * 100)
   const full = table.count >= table.capacity
   const palette = getTablePalette(table.number)
@@ -10,14 +12,14 @@ export default function TableCard({ table, onMove, onDelete }) {
   return (
     <article
       className={`card flex flex-col p-5 ${palette.borderAccent}`}
-      aria-label={`Masa ${table.number}`}
+      aria-label={t.tableLabel(table.number)}
       data-testid={`table-${table.number}`}
     >
       <header className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">
           <span className={`h-3 w-3 rounded-full ${palette.dot}`} aria-hidden="true" />
           <h3 className="font-heading text-xl font-bold text-[#202124] dark:text-[#E8EAED]">
-            Masa {table.number}
+            {t.tableLabel(table.number)}
           </h3>
         </div>
         <span
@@ -32,7 +34,7 @@ export default function TableCard({ table, onMove, onDelete }) {
       </header>
 
       <p className="mt-1 min-h-5 truncate text-xs font-medium text-[#5F6368] dark:text-[#9AA0A6]">
-        {table.theme}
+        {translateTheme(table.theme)}
       </p>
 
       <div
@@ -41,7 +43,7 @@ export default function TableCard({ table, onMove, onDelete }) {
         aria-valuenow={pct}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={`Masa ${table.number} doluluk`}
+        aria-label={t.tableOccupancyAria(table.number)}
       >
         <div
           className={`h-full rounded-full transition-all ${
@@ -66,10 +68,10 @@ export default function TableCard({ table, onMove, onDelete }) {
                 type="button"
                 className={btn.small}
                 onClick={() => onMove(m, table.number)}
-                aria-label={`${m.name} kişisini taşı`}
+                aria-label={t.ariaMovePerson(m.name)}
               >
                 <Icon name="swap_horiz" className="text-[15px]" />
-                <span>Taşı</span>
+                <span>{t.btnMove}</span>
               </button>
               {onDelete && (
                 <button
@@ -77,11 +79,11 @@ export default function TableCard({ table, onMove, onDelete }) {
                   type="button"
                   className={btn.smallDanger}
                   onClick={() => onDelete(m)}
-                  aria-label={`${m.name} kişisini sil`}
-                  title="Katılımcıyı sil"
+                  aria-label={t.ariaDeletePerson(m.name)}
+                  title={t.titleDeletePerson}
                 >
                   <Icon name="delete" className="text-[15px]" />
-                  <span>Sil</span>
+                  <span>{t.btnDelete}</span>
                 </button>
               )}
             </div>
@@ -90,7 +92,7 @@ export default function TableCard({ table, onMove, onDelete }) {
         {table.members.length === 0 && (
           <li className="flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#DADCE0] py-6 text-sm font-medium text-[#5F6368] dark:border-[#5F6368] dark:text-[#9AA0A6]">
             <Icon name="event_seat" className="text-[18px]" />
-            <span>Boş masa</span>
+            <span>{t.emptyTable}</span>
           </li>
         )}
       </ul>

@@ -11,6 +11,8 @@ import {
 import { fakePeople } from './fakePeople.js'
 import { buildParticipantsCsv, csvCell } from './csv.js'
 import { validateRegistration } from './validate.js'
+import { QUESTIONS, localizeQuestion } from './questions.js'
+import { STRINGS, translateApiMessage, translateIceBreaker, translateTheme } from './i18n.jsx'
 
 const sizes = (s) => s.tables.map((t) => t.members.length)
 
@@ -127,5 +129,35 @@ describe('validateRegistration', () => {
     expect(validateRegistration({ name: '', answers }).fields).toContain('name')
     expect(validateRegistration({ name: 'Ali', answers: { ...answers, crowd: 9 } }).fields).toContain('answers.crowd')
     expect(validateRegistration({ name: 'Ali' }).fields).toContain('answers')
+  })
+})
+
+describe('i18n (TR / EN)', () => {
+  it('tüm dil anahtarları tr ve en sözlüklerinde birebir eşleşir', () => {
+    expect(Object.keys(STRINGS.en).sort()).toEqual(Object.keys(STRINGS.tr).sort())
+  })
+
+  it('8 sorunun tamamı İngilizceye eksiksiz çevrilir', () => {
+    for (const q of QUESTIONS) {
+      const en = localizeQuestion(q, 'en')
+      expect(en.text).toBeTruthy()
+      expect(en.text).not.toBe(q.text)
+      if (q.options) {
+        for (let i = 0; i < q.options.length; i++) {
+          expect(en.options[i].label).toBeTruthy()
+          expect(en.options[i].label).not.toBe(q.options[i].label)
+        }
+      }
+    }
+  })
+
+  it('masa temaları, buz kırıcı sorular ve API mesajları İngilizceye çevrilir', () => {
+    expect(translateTheme('Teknoloji meraklıları', 'en')).toBe('Tech enthusiasts')
+    expect(translateTheme('Karma masa', 'en')).toBe('Mixed table')
+    expect(
+      translateIceBreaker('Üç kelimeyle kendini anlat, masa tahmin etsin!', 'en'),
+    ).toContain('Describe yourself in three words')
+    expect(translateApiMessage('Masa 4 dolu', 'en')).toBe('Table 4 is full')
+    expect(translateApiMessage('Parola hatalı', 'en')).toBe('Incorrect password')
   })
 })

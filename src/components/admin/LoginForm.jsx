@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { adminLogin } from '../../api/client.js'
 import Icon, { TonalIcon } from '../Icon.jsx'
+import { useI18n } from '../../lib/i18n.jsx'
 import { messageOf } from './ui.js'
 
 /** Admin parola ekranı (Screen 10). Parola doğrulaması API'de (mock'ta VITE_ADMIN_PASSWORD) yapılır. */
@@ -8,6 +9,7 @@ export default function LoginForm({ onSuccess }) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
+  const { lang, t } = useI18n()
 
   const submit = async (e) => {
     e.preventDefault()
@@ -17,7 +19,7 @@ export default function LoginForm({ onSuccess }) {
       await adminLogin(password)
       onSuccess()
     } catch (err) {
-      setError(messageOf(err))
+      setError(messageOf(err, lang))
       setBusy(false)
     }
   }
@@ -34,10 +36,10 @@ export default function LoginForm({ onSuccess }) {
           id="admin-login-title"
           className="font-heading mt-4 text-2xl font-bold text-[#202124] dark:text-[#E8EAED]"
         >
-          Admin girişi
+          {t.adminLoginTitle}
         </h1>
         <p className="mt-1 text-sm text-[#5F6368] dark:text-[#9AA0A6]">
-          Masa yönetim paneline erişmek için organizatör parolasını girin.
+          {t.adminLoginSubtitle}
         </p>
       </div>
 
@@ -46,7 +48,7 @@ export default function LoginForm({ onSuccess }) {
           htmlFor="admin-password"
           className="mb-1.5 block text-sm font-semibold text-[#202124] dark:text-[#E8EAED]"
         >
-          Parola
+          {t.adminPasswordLabel}
         </label>
         <input
           id="admin-password"
@@ -76,7 +78,7 @@ export default function LoginForm({ onSuccess }) {
         className="btn-primary mt-6 w-full"
         disabled={busy || !password}
       >
-        <span>{busy ? 'Kontrol ediliyor…' : 'Giriş yap'}</span>
+        <span>{busy ? t.adminChecking : t.adminLoginBtn}</span>
         {!busy && <Icon name="login" className="text-[20px]" />}
       </button>
     </form>

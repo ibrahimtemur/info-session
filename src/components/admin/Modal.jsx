@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react'
 import Icon from '../Icon.jsx'
+import { useI18n } from '../../lib/i18n.jsx'
 
 /** Basit Material 3 modal (Screen 12): Esc ve dışarı tıklama ile kapanır, açılınca odak panele gider. */
 export default function Modal({ title, onClose, children, id }) {
   const panel = useRef(null)
+  const { t } = useI18n()
 
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose()
@@ -33,7 +35,7 @@ export default function Modal({ title, onClose, children, id }) {
           <button
             type="button"
             onClick={onClose}
-            aria-label="Kapat"
+            aria-label={t.close}
             className="flex h-10 w-10 items-center justify-center rounded-full text-[#5F6368] transition-colors hover:bg-[#F1F3F4] hover:text-[#202124] dark:text-[#9AA0A6] dark:hover:bg-[#3C4043] dark:hover:text-[#E8EAED]"
           >
             <Icon name="close" className="text-[20px]" />

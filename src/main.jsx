@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
+import { I18nProvider } from './lib/i18n.jsx'
 
 // Tema: kayıtlı tercih yoksa varsayılan olarak açık temayı kullan
 const saved = localStorage.getItem('infosession:theme')
@@ -10,6 +11,8 @@ document.documentElement.classList.toggle('dark', dark)
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <I18nProvider>
+      <App />
+    </I18nProvider>
   </StrictMode>,
 )

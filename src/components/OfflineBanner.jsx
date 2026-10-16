@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Icon from './Icon.jsx'
+import { useI18n } from '../lib/i18n.jsx'
 
 /** İnternet kopunca üstte uyarı gösterir. */
 export default function OfflineBanner() {
   const [online, setOnline] = useState(() => navigator.onLine)
+  const { t } = useI18n()
   useEffect(() => {
     const on = () => setOnline(true)
     const off = () => setOnline(false)
@@ -28,7 +30,7 @@ export default function OfflineBanner() {
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EA4335]/15 text-[#C5221F] dark:bg-black/20 dark:text-[#F28B82]">
             <Icon name="wifi_off" className="text-[20px]" />
           </span>
-          <span>İnternetin koptu! Bağlanınca kaldığın yerden devam edebilirsin.</span>
+          <span>{t.offlineBanner}</span>
         </motion.div>
       )}
     </AnimatePresence>

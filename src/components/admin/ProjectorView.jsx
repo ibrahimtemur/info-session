@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { getTables } from '../../api/client.js'
 import Icon, { getTablePalette, GoogleDots } from '../Icon.jsx'
+import { useI18n } from '../../lib/i18n.jsx'
 
 const REFRESH_MS = 5000
 
@@ -14,6 +15,7 @@ export default function ProjectorView({ initial, onExit }) {
   const [updated, setUpdated] = useState(() => new Date())
   const [failed, setFailed] = useState(false)
   const root = useRef(null)
+  const { lang, t, translateTheme } = useI18n()
 
   useEffect(() => {
     let alive = true
@@ -48,7 +50,7 @@ export default function ProjectorView({ initial, onExit }) {
     }
   }, [onExit])
 
-  const time = updated.toLocaleTimeString('tr-TR', {
+  const time = updated.toLocaleTimeString(lang === 'en' ? 'en-GB' : 'tr-TR', {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
@@ -59,13 +61,13 @@ export default function ProjectorView({ initial, onExit }) {
       ref={root}
       id="projector-view"
       role="dialog"
-      aria-label="Masa listesi"
+      aria-label={t.projectorAria}
       className="fixed inset-0 z-40 flex flex-col justify-between overflow-auto bg-[#202124] p-[2.2vmin] text-[#E8EAED]"
     >
       <div>
         <header className="mb-[2vmin] flex flex-wrap items-center justify-between gap-4 border-b border-[#5F6368]/40 pb-[1.5vmin]">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 rounded-xl bg-[#303134] px-3.5 py-2 border border-[#5F6368]/50">
+            <div className="flex items-center gap-2 rounded-xl border border-[#5F6368]/50 bg-[#303134] px-3.5 py-2">
               <span className="font-mono text-base font-bold text-[#8AB4F8]">&lt; &gt;</span>
               <GoogleDots />
               <span className="font-heading text-sm font-semibold text-[#9AA0A6]">
@@ -73,7 +75,7 @@ export default function ProjectorView({ initial, onExit }) {
               </span>
             </div>
             <h1 className="font-heading text-[clamp(1.75rem,3.6vmin,3.5rem)] font-bold tracking-tight text-white">
-              Masa Listesi
+              {t.projectorTitle}
             </h1>
           </div>
 
@@ -81,7 +83,7 @@ export default function ProjectorView({ initial, onExit }) {
             {failed ? (
               <span className="inline-flex items-center gap-2 rounded-full border border-[#F28B82]/40 bg-[#8C1D18]/60 px-4 py-2 text-[#F28B82]">
                 <Icon name="wifi_off" className="text-[20px]" />
-                <span>Bağlantı sorunu — son veri</span>
+                <span>{t.projectorConnIssue}</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-2.5 rounded-full border border-[#81C995]/40 bg-[#0D652D]/40 px-4 py-2 text-[#81C995]">
@@ -89,7 +91,7 @@ export default function ProjectorView({ initial, onExit }) {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34A853] opacity-75" />
                   <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#34A853]" />
                 </span>
-                <span>Canlı · {time}</span>
+                <span>{t.projectorLive(time)}</span>
               </span>
             )}
             <button
@@ -99,7 +101,7 @@ export default function ProjectorView({ initial, onExit }) {
               className="inline-flex min-h-12 items-center gap-2 rounded-full border border-[#5F6368] bg-[#303134] px-5 font-semibold text-[#E8EAED] transition-colors hover:bg-[#3C4043]"
             >
               <Icon name="close_fullscreen" className="text-[20px]" />
-              <span>Kapat (Esc)</span>
+              <span>{t.projectorExit}</span>
             </button>
           </div>
         </header>
@@ -107,13 +109,13 @@ export default function ProjectorView({ initial, onExit }) {
         <div className="grid gap-[1.6vmin] [grid-template-columns:repeat(auto-fill,minmax(min(100%,21rem),1fr))]">
           {[...data.tables]
             .sort((a, b) => a.number - b.number)
-            .map((t) => {
-              const palette = getTablePalette(t.number)
+            .map((tbl) => {
+              const palette = getTablePalette(tbl.number)
               return (
                 <section
-                  key={t.number}
+                  key={tbl.number}
                   className="overflow-hidden rounded-2xl border border-[#5F6368]/60 bg-[#303134] shadow-sm"
-                  data-testid={`projector-table-${t.number}`}
+                  data-testid={`projector-table-${tbl.number}`}
                 >
                   <div className={`h-2 w-full ${palette.projectorTopStrip}`} />
                   <div className="p-[1.8vmin]">
@@ -121,19 +123,19 @@ export default function ProjectorView({ initial, onExit }) {
                       <h2
                         className={`font-heading text-[clamp(1.5rem,3.2vmin,3rem)] font-bold ${palette.projectorHeading}`}
                       >
-                        Masa {t.number}
+                        {t.tableLabel(tbl.number)}
                       </h2>
                       <span
                         className={`rounded-full px-3 py-0.5 text-[clamp(0.85rem,1.6vmin,1.35rem)] font-bold ${palette.projectorBadge}`}
                       >
-                        {t.count}/{t.capacity}
+                        {tbl.count}/{tbl.capacity}
                       </span>
                     </div>
                     <p className="mb-[1.2vmin] mt-0.5 truncate text-[clamp(0.85rem,1.5vmin,1.25rem)] font-medium text-[#9AA0A6]">
-                      {t.theme}
+                      {translateTheme(tbl.theme)}
                     </p>
                     <ul className="space-y-1 text-[clamp(1.1rem,2.3vmin,2.1rem)] font-semibold leading-snug text-white">
-                      {t.members.map((m) => (
+                      {tbl.members.map((m) => (
                         <li
                           key={m.id}
                           className="flex items-center gap-2 truncate rounded-lg bg-[#202124]/60 px-3 py-1"
@@ -156,7 +158,7 @@ export default function ProjectorView({ initial, onExit }) {
           <div className="mt-[10vmin] flex flex-col items-center gap-3 text-center">
             <Icon name="table_restaurant" className="text-[64px] text-[#9AA0A6]" />
             <p className="font-heading text-[clamp(1.5rem,3.5vmin,3rem)] font-bold text-[#9AA0A6]">
-              Henüz masa dağıtımı yapılmadı
+              {t.projectorEmpty}
             </p>
           </div>
         )}
@@ -169,7 +171,7 @@ export default function ProjectorView({ initial, onExit }) {
               <Icon name="schedule" className="text-[24px]" />
             </span>
             <h2 className="font-heading text-[clamp(1.1rem,2.2vmin,2rem)] font-bold text-[#FDD663]">
-              Bekleme listesi ({data.waitlist.length})
+              {t.waitlistHeading(data.waitlist.length)}
             </h2>
           </div>
           <p className="flex-1 text-[clamp(1rem,2vmin,1.75rem)] font-semibold text-[#E8EAED]">

@@ -12,7 +12,10 @@ export const btn = {
     'inline-flex min-h-9 items-center justify-center gap-1 rounded-full border border-[#EA4335]/35 bg-[#FCE8E6]/70 px-3 text-xs font-semibold text-[#C5221F] transition-colors hover:bg-[#FCE8E6] dark:border-[#F28B82]/35 dark:bg-[#8C1D18]/40 dark:text-[#F28B82] dark:hover:bg-[#8C1D18]/60',
 }
 
-export function messageOf(e) {
-  if (e?.name === 'NetworkError') return 'Bağlantı yok. İnternetini kontrol et.'
-  return e?.message || 'Beklenmeyen bir hata oluştu'
+import { getInitialLang, STRINGS, translateApiMessage } from '../../lib/i18n.jsx'
+
+export function messageOf(e, lang = getInitialLang()) {
+  const t = STRINGS[lang] || STRINGS.tr
+  if (e?.name === 'NetworkError') return t.networkErrorMsg
+  return translateApiMessage(e?.message, lang) || t.unexpectedErrorMsg
 }

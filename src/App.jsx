@@ -4,6 +4,7 @@ import { dev, getResult } from './api/client.js'
 import OfflineBanner from './components/OfflineBanner.jsx'
 import ThemeToggle from './components/ThemeToggle.jsx'
 import Icon, { DesignerCredit, GdgBrandMark, TonalIcon } from './components/Icon.jsx'
+import { LanguageToggle, useI18n } from './lib/i18n.jsx'
 import Welcome from './pages/Welcome.jsx'
 import Name from './pages/Name.jsx'
 import Quiz from './pages/Quiz.jsx'
@@ -17,6 +18,7 @@ const isAdminRoute = () => location.pathname.replace(/\/+$/, '') === '/admin'
 
 /** Basit yol ayrımı: /admin -> yönetim paneli, diğer her şey katılımcı akışı. */
 export default function App() {
+  const { t } = useI18n()
   if (isAdminRoute()) {
     return (
       <Suspense
@@ -24,7 +26,7 @@ export default function App() {
           <div className="mt-24 flex flex-col items-center gap-3 text-center">
             <TonalIcon name="hourglass_top" tone="blue" size="lg" />
             <p className="font-heading text-lg font-semibold text-[#5F6368] dark:text-[#9AA0A6]">
-              Yükleniyor…
+              {t.loading}
             </p>
           </div>
         }
@@ -40,6 +42,7 @@ function Participant() {
   const [step, setStep] = useState('loading')
   const [name, setName] = useState('')
   const [result, setResult] = useState(null)
+  const { t } = useI18n()
 
   // Açılışta bu cihaz daha önce katıldı mı? Evetse doğrudan sonuç.
   useEffect(() => {
@@ -63,7 +66,10 @@ function Participant() {
       <OfflineBanner />
       <header className="mb-4 flex items-center justify-between gap-2">
         <GdgBrandMark />
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <LanguageToggle />
+          <ThemeToggle />
+        </div>
       </header>
 
       <AnimatePresence mode="wait">
@@ -79,7 +85,7 @@ function Participant() {
             <div className="m-auto flex flex-col items-center gap-3">
               <TonalIcon name="local_cafe" tone="blue" size="lg" />
               <p className="font-heading text-base font-semibold text-[#5F6368] dark:text-[#9AA0A6]">
-                Yükleniyor…
+                {t.loading}
               </p>
             </div>
           )}
@@ -120,7 +126,7 @@ function Participant() {
             className="rounded-full bg-[#E8F0FE] px-3.5 py-2 font-semibold text-[#174EA6] transition-colors hover:bg-[#D2E3FC] dark:bg-[#174EA6]/40 dark:text-[#8AB4F8]"
             onClick={refresh}
           >
-            30 sahte ekle
+            {t.devAddFake}
           </button>
           <button
             id="dev-reset"
@@ -131,7 +137,7 @@ function Participant() {
               location.reload()
             }}
           >
-            Sıfırla
+            {t.devReset}
           </button>
         </div>
       )}

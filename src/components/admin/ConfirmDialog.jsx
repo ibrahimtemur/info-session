@@ -1,4 +1,5 @@
 import Icon, { TonalIcon } from '../Icon.jsx'
+import { useI18n } from '../../lib/i18n.jsx'
 import Modal from './Modal.jsx'
 import { btn } from './ui.js'
 
@@ -12,6 +13,7 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }) {
+  const { t } = useI18n()
   return (
     <Modal title={title} onClose={onCancel} id="confirm-dialog">
       <div className="flex items-start gap-3.5">
@@ -32,7 +34,7 @@ export default function ConfirmDialog({
           onClick={onCancel}
           disabled={busy}
         >
-          Vazgeç
+          {t.cancel}
         </button>
         <button
           id="confirm-ok"
@@ -42,7 +44,7 @@ export default function ConfirmDialog({
           disabled={busy}
         >
           {danger && !busy && <Icon name="delete_forever" className="text-[18px]" />}
-          <span>{busy ? 'Çalışıyor…' : confirmLabel}</span>
+          <span>{busy ? t.working : confirmLabel}</span>
         </button>
       </div>
     </Modal>

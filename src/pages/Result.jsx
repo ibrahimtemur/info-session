@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { getResult } from '../api/client.js'
 import Icon, { getTablePalette, TonalIcon } from '../components/Icon.jsx'
+import { useI18n } from '../lib/i18n.jsx'
 
 /**
  * Sonuç ekranları:
@@ -10,6 +11,8 @@ import Icon, { getTablePalette, TonalIcon } from '../components/Icon.jsx'
  * - Screen 8 (Waitlist): Masalar şu an dolu! + sıra göstergesi
  */
 export default function Result({ result, onResultUpdate }) {
+  const { t, translateTheme, translateIceBreaker } = useI18n()
+
   // Havuzda bekleyen katılımcı için otomatik polling
   useEffect(() => {
     if (result.status !== 'waiting') return
@@ -42,18 +45,17 @@ export default function Result({ result, onResultUpdate }) {
           </motion.div>
 
           <h1 className="font-heading mt-5 text-2xl font-bold text-[#202124] sm:text-3xl dark:text-[#E8EAED]">
-            Cevapların Kaydedildi!
+            {t.waitingTitle}
           </h1>
           <p className="mt-2 text-base font-medium text-[#5F6368] dark:text-[#9AA0A6]">
-            Harika,{' '}
+            {t.waitingGreat}{' '}
             <span className="font-semibold text-[#4285F4] dark:text-[#8AB4F8]">
               {result.name}
             </span>
             !
           </p>
           <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-[#5F6368] dark:text-[#9AA0A6]">
-            Diğer katılımcıların da testi tamamlaması bekleniyor. Organizatör masaları dağıttığında
-            masan ve arkadaşların burada otomatik olarak belirecek.
+            {t.waitingBody}
           </p>
 
           <div className="mx-auto mt-6 inline-flex items-center justify-center gap-2.5 rounded-full border border-[#4285F4]/30 bg-[#E8F0FE] px-4 py-2.5 text-sm font-semibold text-[#174EA6] dark:border-[#8AB4F8]/30 dark:bg-[#174EA6]/35 dark:text-[#8AB4F8]">
@@ -61,12 +63,12 @@ export default function Result({ result, onResultUpdate }) {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#4285F4] opacity-75" />
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#4285F4] dark:bg-[#8AB4F8]" />
             </span>
-            <span>Masalar birazdan dağıtılacak…</span>
+            <span>{t.waitingChip}</span>
           </div>
 
           <p className="mt-5 flex items-center justify-center gap-1.5 text-xs text-[#5F6368] dark:text-[#9AA0A6]">
             <Icon name="sync" className="text-[16px]" />
-            <span>Sayfayı açık tutabilirsin, ekran otomatik güncellenecektir.</span>
+            <span>{t.waitingAutoSync}</span>
           </p>
         </div>
       </div>
@@ -83,21 +85,20 @@ export default function Result({ result, onResultUpdate }) {
           </div>
 
           <h1 className="font-heading mt-5 text-2xl font-bold text-[#202124] sm:text-3xl dark:text-[#E8EAED]">
-            Masalar şu an dolu!
+            {t.waitlistTitle}
           </h1>
 
           <div className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full border border-[#FBBC04]/50 bg-[#FEF7E0] px-5 py-2 text-base font-bold text-[#B06000] dark:border-[#FDD663]/40 dark:bg-[#7A4B00]/40 dark:text-[#FDD663]">
             <Icon name="format_list_numbered" className="text-[20px]" />
-            <span>Bekleme listesinde {result.position}. sıradasın</span>
+            <span>{t.waitlistBadge(result.position)}</span>
           </div>
 
           <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-[#5F6368] dark:text-[#9AA0A6]">
-            Çok popülersin,{' '}
+            {t.waitlistPopularPrefix}{' '}
             <strong className="font-semibold text-[#202124] dark:text-[#E8EAED]">
               {result.name}
             </strong>
-            ! Bir yer açılırsa organizatörler seni masaya alacak. Kafeden uzaklaşma, bu ekran
-            otomatik güncellenir.
+            {t.waitlistBody}
           </p>
         </div>
       </div>
@@ -118,21 +119,21 @@ export default function Result({ result, onResultUpdate }) {
         transition={{ type: 'spring', stiffness: 180, damping: 18 }}
         className={`rounded-2xl p-6 text-center shadow-sm ${palette.heroBg}`}
       >
-        <p className="text-base font-medium opacity-90">Selam {result.name}!</p>
+        <p className="text-base font-medium opacity-90">{t.seatedHello(result.name)}</p>
         <p className="mt-0.5 text-sm font-semibold uppercase tracking-wider opacity-85">
-          Senin masan:
+          {t.seatedYourTable}
         </p>
         <h1
           className="font-heading mt-1 text-6xl font-bold leading-none tracking-tight"
           data-testid="table-number"
         >
-          Masa {result.tableId}
+          {t.tableLabel(result.tableId)}
         </h1>
         <div
           className={`mt-4 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold ${palette.heroChip}`}
         >
           <Icon name="auto_awesome" className="text-[18px]" />
-          <span>{table.theme}</span>
+          <span>{translateTheme(table.theme)}</span>
         </div>
       </motion.div>
 
@@ -144,7 +145,7 @@ export default function Result({ result, onResultUpdate }) {
             id="mates"
             className="font-heading text-lg font-bold text-[#202124] dark:text-[#E8EAED]"
           >
-            Masa arkadaşların
+            {t.tablematesTitle}
           </h2>
         </div>
 
@@ -166,15 +167,13 @@ export default function Result({ result, onResultUpdate }) {
                 <Icon name={isMe ? 'person_check' : 'person'} className="text-[16px]" />
                 <span>
                   {m.name}
-                  {isMe && ' (sen)'}
+                  {isMe && t.youSuffix}
                 </span>
               </motion.li>
             )
           })}
         </ul>
-        <p className="mt-3 text-xs text-[#5F6368] dark:text-[#9AA0A6]">
-          Sonradan gelenler de masana katılabilir, liste güncellenir.
-        </p>
+        <p className="mt-3 text-xs text-[#5F6368] dark:text-[#9AA0A6]">{t.tablematesHint}</p>
       </section>
 
       {/* Buz kırıcı soru */}
@@ -185,11 +184,11 @@ export default function Result({ result, onResultUpdate }) {
             id="icebreaker-title"
             className="font-heading text-lg font-bold text-[#202124] dark:text-[#E8EAED]"
           >
-            Buz kırıcı soru
+            {t.icebreakerTitle}
           </h2>
         </div>
         <blockquote className="font-heading text-lg font-semibold leading-snug text-[#202124] dark:text-[#E8EAED]">
-          “{table.iceBreaker}”
+          “{translateIceBreaker(table.iceBreaker)}”
         </blockquote>
       </section>
     </div>
@@ -197,10 +196,11 @@ export default function Result({ result, onResultUpdate }) {
 }
 
 function Again() {
+  const { t } = useI18n()
   return (
     <div className="mb-4 flex items-center gap-2.5 rounded-2xl border border-[#34A853]/30 bg-[#E6F4EA] px-4 py-3 text-left text-xs font-medium text-[#137333] dark:border-[#81C995]/30 dark:bg-[#0D652D]/35 dark:text-[#81C995]">
       <Icon name="verified" className="text-[18px] shrink-0" />
-      <span>Tekrar hoş geldin! Bu cihazdan zaten katılmıştın, sonucun burada.</span>
+      <span>{t.againNotice}</span>
     </div>
   )
 }
