@@ -155,7 +155,7 @@ export function DesignerCredit({ className = '' }) {
     <footer
       className={`mt-6 flex items-center justify-center gap-1.5 text-center text-[11px] font-medium tracking-wide text-[#5F6368]/75 dark:text-[#9AA0A6]/70 ${className}`}
     >
-      <span>Tasarım</span>
+      <span>Geliştirici</span>
       <span aria-hidden="true" className="text-[#DADCE0] dark:text-[#5F6368]">
         ·
       </span>
