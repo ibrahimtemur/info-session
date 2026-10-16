@@ -20,14 +20,43 @@ Uygulama Vercel üzerinde aktiftir. Aşağıdaki bağlantılara tıklayarak veya
 
 ## İçindekiler
 1. [Canlı Yayın & Hızlı Erişim](#canlı-yayın--hızlı-erişim)
-2. [Tasarım Dili (Google / Material Design 3)](#tasarım-dili-google--material-design-3)
-3. [Kullanılan Teknolojiler](#kullanılan-teknolojiler)
-4. [Özellikler ve Şu Anki Durum](#özellikler-ve-şu-anki-durum)
-5. [Proje Yapısı](#proje-yapısı)
-6. [Yerel Kurulum ve Çalıştırma](#yerel-kurulum-ve-çalıştırma)
-7. [Ortam Değişkenleri (.env)](#ortam-değişkenleri-env)
-8. [Eşleştirme Algoritması ve Etkinlik Akışı](#eşleştirme-algoritması-ve-etkinlik-akışı)
-9. [Canlıya Alma Rehberi (Deployment)](#canlıya-alma-rehberi-deployment)
+2. [Ekran Görüntüleri](#ekran-görüntüleri)
+3. [Tasarım Dili (Google / Material Design 3)](#tasarım-dili-google--material-design-3)
+4. [Kullanılan Teknolojiler](#kullanılan-teknolojiler)
+5. [Özellikler ve Şu Anki Durum](#özellikler-ve-şu-anki-durum)
+6. [Proje Yapısı](#proje-yapısı)
+7. [Yerel Kurulum ve Çalıştırma](#yerel-kurulum-ve-çalıştırma)
+8. [Ortam Değişkenleri (.env)](#ortam-değişkenleri-env)
+9. [Eşleştirme Algoritması ve Etkinlik Akışı](#eşleştirme-algoritması-ve-etkinlik-akışı)
+10. [Canlıya Alma Rehberi (Deployment)](#canlıya-alma-rehberi-deployment)
+
+---
+
+## Ekran Görüntüleri
+
+### 1. Katılımcı Akışı (Mobil — Açık Tema)
+| 1. Karşılama | 2. İsim & Gizlilik | 3. Derecelendirme (1–5) | 4. Tekli Seçim | 5. Çoklu Seçim |
+| :---: | :---: | :---: | :---: | :---: |
+| ![Karşılama](docs/screens/01-welcome-light.png) | ![İsim](docs/screens/02-name.png) | ![Derecelendirme](docs/screens/03-quiz-rating.png) | ![Tekli Seçim](docs/screens/04-quiz-single-light.png) | ![Çoklu Seçim](docs/screens/05-quiz-multi.png) |
+
+### 2. Sonuç ve Bağlantı Durumu Ekranları
+| 6. Masaya Yerleşti (Masa 4) | 7. Dağıtım Bekleniyor | 8. Bekleme Listesi | 9. Çevrimdışı & Hata Durumu |
+| :---: | :---: | :---: | :---: |
+| ![Masaya Yerleşti](docs/screens/06-result-seated-light.png) | ![Dağıtım Bekleniyor](docs/screens/07-result-waiting.png) | ![Bekleme Listesi](docs/screens/08-result-waitlist.png) | ![Çevrimdışı ve Hata](docs/screens/09-states-offline-error.png) |
+
+### 3. Koyu Tema (Dark Mode) Görünümleri
+| Karşılama (Koyu Tema) | Tekli Seçim (Koyu Tema) | Masaya Yerleşti (Koyu Tema) |
+| :---: | :---: | :---: |
+| ![Karşılama Koyu](docs/screens/01-welcome-dark.png) | ![Tekli Seçim Koyu](docs/screens/04-quiz-single-dark.png) | ![Masaya Yerleşti Koyu](docs/screens/06-result-seated-dark.png) |
+
+### 4. Organizatör Admin Paneli & Projektör Görünümü
+| 11. Admin Paneli — Masa Yönetimi (1440×900) | 13. Canlı Projektör Görünümü (1920×1080 Koyu Tema) |
+| :---: | :---: |
+| ![Admin Masa Yönetimi](docs/screens/11-admin-dashboard.png) | ![Projektör Görünümü](docs/screens/13-projector-view.png) |
+
+| 10. Admin Girişi | 12. Katılımcıyı Taşı & Sıfırla Onay Modalları |
+| :---: | :---: |
+| ![Admin Girişi](docs/screens/10-admin-login.png) | ![Admin Diyalogları](docs/screens/12-admin-dialogs.png) |
 
 ---
 
@@ -91,7 +120,8 @@ info-session/
 ├── api/
 │   └── index.js                     # Vercel serverless giriş noktası (Express uygulamasını dışa aktarır)
 ├── docs/
-│   └── qr/                          # README için QR kod görselleri (qr-app.png, qr-admin.png)
+│   ├── qr/                          # README için QR kod görselleri (qr-app.png, qr-admin.png)
+│   └── screens/                     # Uygulama ekran görüntüleri (01-welcome..13-projector-view.png)
 ├── public/
 │   └── qr/                          # Statik sunulan QR kod görselleri
 ├── scripts/
