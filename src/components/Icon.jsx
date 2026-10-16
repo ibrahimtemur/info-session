@@ -134,15 +134,15 @@ export function GoogleDots({ className = '' }) {
 
 export function GdgBrandMark({ subtitle }) {
   return (
-    <div className="flex items-center gap-2.5 min-w-0">
-      <div className="flex items-center gap-1.5 rounded-lg bg-[#E8F0FE] px-2 py-1 dark:bg-[#3C4043]">
-        <span className="font-mono text-xs font-bold tracking-tighter text-[#4285F4] dark:text-[#8AB4F8]">
+    <div className="flex min-w-0 items-center gap-2">
+      <div className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-[#E8F0FE] px-2 py-1 dark:bg-[#3C4043]">
+        <span className="whitespace-nowrap font-mono text-xs font-bold tracking-tighter text-[#4285F4] dark:text-[#8AB4F8]">
           &lt; &gt;
         </span>
         <GoogleDots />
       </div>
       <div className="min-w-0">
-        <span className="font-heading block truncate text-sm font-semibold tracking-tight text-[#202124] sm:text-base dark:text-[#E8EAED]">
+        <span className="font-heading block truncate text-[13px] font-semibold tracking-tight text-[#202124] sm:text-base dark:text-[#E8EAED]">
           GDG on Campus · {subtitle || 'Info Session'}
         </span>
       </div>

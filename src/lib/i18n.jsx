@@ -1,5 +1,4 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import Icon from '../components/Icon.jsx'
 
 export const LANG_STORAGE_KEY = 'infosession:lang'
 
@@ -510,7 +509,7 @@ export function useI18n() {
   return ctx
 }
 
-/** Material 3 dil değiştirici hap buton (TR / EN). */
+/** Material 3 dil değiştirici buton (simgesiz, sadece EN / TR). */
 export function LanguageToggle({ className = '' }) {
   const { lang, toggleLang, t } = useI18n()
   return (
@@ -519,10 +518,9 @@ export function LanguageToggle({ className = '' }) {
       onClick={toggleLang}
       aria-label={t.langSwitchLabel}
       title={t.langSwitchLabel}
-      className={`inline-flex h-12 items-center justify-center gap-1.5 rounded-full border border-[#DADCE0] bg-white px-3.5 text-xs font-bold tracking-wide text-[#5F6368] transition-colors hover:bg-[#F1F3F4] hover:text-[#202124] dark:border-[#5F6368] dark:bg-[#303134] dark:text-[#E8EAED] dark:hover:bg-[#3C4043] ${className}`}
+      className={`font-heading flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#DADCE0] bg-white text-xs font-bold tracking-wide text-[#202124] transition-colors hover:bg-[#F1F3F4] dark:border-[#5F6368] dark:bg-[#303134] dark:text-[#E8EAED] dark:hover:bg-[#3C4043] ${className}`}
     >
-      <Icon name="language" className="text-[18px] text-[#4285F4] dark:text-[#8AB4F8]" />
-      <span className="font-heading">{lang === 'tr' ? 'EN' : 'TR'}</span>
+      {lang === 'tr' ? 'EN' : 'TR'}
     </button>
   )
 }
