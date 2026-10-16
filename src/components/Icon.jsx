@@ -132,14 +132,22 @@ export function GoogleDots({ className = '' }) {
   )
 }
 
+export function GdgLogo({ className = 'h-3.5 w-auto' }) {
+  return (
+    <svg viewBox="60 140 392 232" fill="none" className={className} aria-hidden="true">
+      <line x1="98" y1="256" x2="204" y2="195" stroke="#EA4335" strokeWidth="56" strokeLinecap="round" />
+      <line x1="98" y1="256" x2="204" y2="317" stroke="#4285F4" strokeWidth="56" strokeLinecap="round" />
+      <line x1="308" y1="317" x2="414" y2="256" stroke="#FBBC04" strokeWidth="56" strokeLinecap="round" />
+      <line x1="308" y1="195" x2="414" y2="256" stroke="#0F9D58" strokeWidth="56" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 export function GdgBrandMark({ subtitle }) {
   return (
     <div className="flex min-w-0 items-center gap-2">
-      <div className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg bg-[#E8F0FE] px-1.5 py-1 dark:bg-[#3C4043]">
-        <span className="whitespace-nowrap font-mono text-[11px] font-bold tracking-tighter text-[#4285F4] dark:text-[#8AB4F8]">
-          &lt;&gt;
-        </span>
-        <GoogleDots />
+      <div className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-[#E8F0FE] px-2 py-1 dark:bg-[#3C4043]">
+        <GdgLogo className="h-3.5 w-auto" />
       </div>
       <span className="font-heading whitespace-nowrap text-[13.5px] font-semibold tracking-tight text-[#202124] dark:text-[#E8EAED]">
         GDG on Campus · {subtitle || 'Info Session'}
