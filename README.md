@@ -46,29 +46,41 @@ Uygulama Vercel üzerinde aktiftir. Aşağıdaki bağlantılara tıklayarak veya
 
 ## Ekran Görüntüleri
 
-### 1. Katılımcı Akışı (Mobil — Açık Tema)
-| 1. Karşılama | 2. İsim & Gizlilik | 3. Derecelendirme (1–5) | 4. Tekli Seçim | 5. Çoklu Seçim |
+### 1. Katılımcı Akışı — Giriş ve Anket (Açık Tema)
+| 1. Karşılama | 2. İsim & Gizlilik | 3. Soru 1/8 (Derecelendirme) | 4. Soru 2/8 (Derecelendirme) | 5. Soru 3/8 (Çoklu Seçim) |
 | :---: | :---: | :---: | :---: | :---: |
-| ![Karşılama](docs/screens/01-welcome-light.png) | ![İsim](docs/screens/02-name.png) | ![Derecelendirme](docs/screens/03-quiz-rating.png) | ![Tekli Seçim](docs/screens/04-quiz-single-light.png) | ![Çoklu Seçim](docs/screens/05-quiz-multi.png) |
+| ![Karşılama Açık](docs/screens/01-welcome-light.png) | ![İsim Açık](docs/screens/02-name-light.png) | ![Soru 1 Açık](docs/screens/03-q1-rating-light.png) | ![Soru 2 Açık](docs/screens/04-q2-rating-light.png) | ![Soru 3 Açık](docs/screens/05-q3-multi-light.png) |
 
-### 2. Sonuç ve Bağlantı Durumu Ekranları
-| 6. Masaya Yerleşti (Masa 4) | 7. Dağıtım Bekleniyor | 8. Bekleme Listesi | 9. Çevrimdışı & Hata Durumu |
+| 6. Soru 4/8 (Sohbet Tarzı) | 7. Soru 5/8 (Etkinlik Hedefi) | 8. Soru 6/8 (Bölüm - İsteğe Bağlı) | 9. Soru 7/8 (Cuma Akşamı) | 10. Soru 8/8 (Kafe Siparişi) |
+| :---: | :---: | :---: | :---: | :---: |
+| ![Soru 4 Açık](docs/screens/06-q4-single-light.png) | ![Soru 5 Açık](docs/screens/07-q5-goal-light.png) | ![Soru 6 Açık](docs/screens/08-q6-dept-light.png) | ![Soru 7 Açık](docs/screens/09-q7-friday-light.png) | ![Soru 8 Açık](docs/screens/10-q8-drink-light.png) |
+
+### 2. Katılımcı Akışı — Giriş ve Anket (Koyu Tema)
+| 1. Karşılama (Koyu) | 2. İsim & Gizlilik (Koyu) | 3. Soru 1/8 (Koyu) | 4. Soru 2/8 (Koyu) | 5. Soru 3/8 (Koyu) |
+| :---: | :---: | :---: | :---: | :---: |
+| ![Karşılama Koyu](docs/screens/01-welcome-dark.png) | ![İsim Koyu](docs/screens/02-name-dark.png) | ![Soru 1 Koyu](docs/screens/03-q1-rating-dark.png) | ![Soru 2 Koyu](docs/screens/04-q2-rating-dark.png) | ![Soru 3 Koyu](docs/screens/05-q3-multi-dark.png) |
+
+| 6. Soru 4/8 (Koyu) | 7. Soru 5/8 (Koyu) | 8. Soru 6/8 (Koyu) | 9. Soru 7/8 (Koyu) | 10. Soru 8/8 (Koyu) |
+| :---: | :---: | :---: | :---: | :---: |
+| ![Soru 4 Koyu](docs/screens/06-q4-single-dark.png) | ![Soru 5 Koyu](docs/screens/07-q5-goal-dark.png) | ![Soru 6 Koyu](docs/screens/08-q6-dept-dark.png) | ![Soru 7 Koyu](docs/screens/09-q7-friday-dark.png) | ![Soru 8 Koyu](docs/screens/10-q8-drink-dark.png) |
+
+### 3. Katılımcı Sonuç Ekranları (Bekleme Havuzu & Masaya Yerleşme)
+| Dağıtım Bekleniyor (Açık) | Dağıtım Bekleniyor (Koyu) | Masaya Yerleşti (Açık) | Masaya Yerleşti (Koyu) |
 | :---: | :---: | :---: | :---: |
-| ![Masaya Yerleşti](docs/screens/06-result-seated-light.png) | ![Dağıtım Bekleniyor](docs/screens/07-result-waiting.png) | ![Bekleme Listesi](docs/screens/08-result-waitlist.png) | ![Çevrimdışı ve Hata](docs/screens/09-states-offline-error.png) |
+| ![Dağıtım Bekleniyor Açık](docs/screens/11-result-waiting-light.png) | ![Dağıtım Bekleniyor Koyu](docs/screens/11-result-waiting-dark.png) | ![Masaya Yerleşti Açık](docs/screens/15-result-seated-light.png) | ![Masaya Yerleşti Koyu](docs/screens/15-result-seated-dark.png) |
 
-### 3. Koyu Tema (Dark Mode) Görünümleri
-| Karşılama (Koyu Tema) | Tekli Seçim (Koyu Tema) | Masaya Yerleşti (Koyu Tema) |
-| :---: | :---: | :---: |
-| ![Karşılama Koyu](docs/screens/01-welcome-dark.png) | ![Tekli Seçim Koyu](docs/screens/04-quiz-single-dark.png) | ![Masaya Yerleşti Koyu](docs/screens/06-result-seated-dark.png) |
-
-### 4. Organizatör Admin Paneli & Projektör Görünümü
-| 11. Admin Paneli — Masa Yönetimi (1440×900) | 13. Canlı Projektör Görünümü (1920×1080 Koyu Tema) |
+### 4. Organizatör Admin Paneli & Canlı Projektör Görünümü
+| Admin Paneli — Havuzda Dağıtım Bekleyenler (Açık) | Admin Paneli — Havuzda Dağıtım Bekleyenler (Koyu) |
 | :---: | :---: |
-| ![Admin Masa Yönetimi](docs/screens/11-admin-dashboard.png) | ![Projektör Görünümü](docs/screens/13-projector-view.png) |
+| ![Admin Bekleyenler Açık](docs/screens/12-admin-waiting-light.png) | ![Admin Bekleyenler Koyu](docs/screens/12-admin-waiting-dark.png) |
 
-| 10. Admin Girişi | 12. Katılımcıyı Taşı & Sıfırla Onay Modalları |
+| Admin Paneli — Masalar Dağıtıldı (Açık) | Admin Paneli — Masalar Dağıtıldı (Koyu) |
 | :---: | :---: |
-| ![Admin Girişi](docs/screens/10-admin-login.png) | ![Admin Diyalogları](docs/screens/12-admin-dialogs.png) |
+| ![Admin Dağıtıldı Açık](docs/screens/13-admin-seated-light.png) | ![Admin Dağıtıldı Koyu](docs/screens/13-admin-seated-dark.png) |
+
+| Canlı Projektör Görünümü (Masa Listesi — Tam Ekran Koyu Tema) |
+| :---: |
+| ![Projektör Görünümü](docs/screens/14-projector-view.png) |
 
 ---
 
@@ -135,7 +147,7 @@ info-session/
 │   └── index.js                     # Vercel serverless giriş noktası (Express uygulamasını dışa aktarır)
 ├── docs/
 │   ├── qr/                          # README için QR kod görselleri (qr-app.png, qr-admin.png)
-│   └── screens/                     # Uygulama ekran görüntüleri (01-welcome..13-projector-view.png)
+│   └── screens/                     # Uygulama ekran görüntüleri (01-welcome..15-result-seated)
 ├── public/
 │   └── qr/                          # Statik sunulan QR kod görselleri
 ├── scripts/
@@ -294,29 +306,41 @@ The app is live on Vercel. Click the links below or scan the QR codes with your 
 
 ## Screenshots
 
-### 1. Participant Flow (Mobile — Light Theme)
-| 1. Welcome | 2. Name & Privacy | 3. Rating Scale (1–5) | 4. Single Choice | 5. Multi Choice |
+### 1. Participant Flow — Welcome & Quiz (Light Theme)
+| 1. Welcome | 2. Name & Privacy | 3. Question 1/8 (Rating) | 4. Question 2/8 (Rating) | 5. Question 3/8 (Multi Choice) |
 | :---: | :---: | :---: | :---: | :---: |
-| ![Welcome](docs/screens/01-welcome-light.png) | ![Name](docs/screens/02-name.png) | ![Rating](docs/screens/03-quiz-rating.png) | ![Single Choice](docs/screens/04-quiz-single-light.png) | ![Multi Choice](docs/screens/05-quiz-multi.png) |
+| ![Welcome Light](docs/screens/01-welcome-light.png) | ![Name Light](docs/screens/02-name-light.png) | ![Question 1 Light](docs/screens/03-q1-rating-light.png) | ![Question 2 Light](docs/screens/04-q2-rating-light.png) | ![Question 3 Light](docs/screens/05-q3-multi-light.png) |
 
-### 2. Result & Connection State Screens
-| 6. Seated Result (Table 4) | 7. Waiting for Distribution | 8. Waitlist | 9. Offline & Error States |
+| 6. Question 4/8 (Conversation Style) | 7. Question 5/8 (Event Goal) | 8. Question 6/8 (Department - Optional) | 9. Question 7/8 (Friday Night) | 10. Question 8/8 (Café Drink) |
+| :---: | :---: | :---: | :---: | :---: |
+| ![Question 4 Light](docs/screens/06-q4-single-light.png) | ![Question 5 Light](docs/screens/07-q5-goal-light.png) | ![Question 6 Light](docs/screens/08-q6-dept-light.png) | ![Question 7 Light](docs/screens/09-q7-friday-light.png) | ![Question 8 Light](docs/screens/10-q8-drink-light.png) |
+
+### 2. Participant Flow — Welcome & Quiz (Dark Theme)
+| 1. Welcome (Dark) | 2. Name & Privacy (Dark) | 3. Question 1/8 (Dark) | 4. Question 2/8 (Dark) | 5. Question 3/8 (Dark) |
+| :---: | :---: | :---: | :---: | :---: |
+| ![Welcome Dark](docs/screens/01-welcome-dark.png) | ![Name Dark](docs/screens/02-name-dark.png) | ![Question 1 Dark](docs/screens/03-q1-rating-dark.png) | ![Question 2 Dark](docs/screens/04-q2-rating-dark.png) | ![Question 3 Dark](docs/screens/05-q3-multi-dark.png) |
+
+| 6. Question 4/8 (Dark) | 7. Question 5/8 (Dark) | 8. Question 6/8 (Dark) | 9. Question 7/8 (Dark) | 10. Question 8/8 (Dark) |
+| :---: | :---: | :---: | :---: | :---: |
+| ![Question 4 Dark](docs/screens/06-q4-single-dark.png) | ![Question 5 Dark](docs/screens/07-q5-goal-dark.png) | ![Question 6 Dark](docs/screens/08-q6-dept-dark.png) | ![Question 7 Dark](docs/screens/09-q7-friday-dark.png) | ![Question 8 Dark](docs/screens/10-q8-drink-dark.png) |
+
+### 3. Participant Result Screens (Waiting Pool & Seated Table)
+| Waiting for Distribution (Light) | Waiting for Distribution (Dark) | Seated Result (Light) | Seated Result (Dark) |
 | :---: | :---: | :---: | :---: |
-| ![Seated](docs/screens/06-result-seated-light.png) | ![Waiting](docs/screens/07-result-waiting.png) | ![Waitlist](docs/screens/08-result-waitlist.png) | ![Offline and Error](docs/screens/09-states-offline-error.png) |
+| ![Waiting Light](docs/screens/11-result-waiting-light.png) | ![Waiting Dark](docs/screens/11-result-waiting-dark.png) | ![Seated Light](docs/screens/15-result-seated-light.png) | ![Seated Dark](docs/screens/15-result-seated-dark.png) |
 
-### 3. Dark Theme Variants
-| Welcome (Dark) | Single Choice (Dark) | Seated Result (Dark) |
-| :---: | :---: | :---: |
-| ![Welcome Dark](docs/screens/01-welcome-dark.png) | ![Single Choice Dark](docs/screens/04-quiz-single-dark.png) | ![Seated Dark](docs/screens/06-result-seated-dark.png) |
-
-### 4. Organizer Admin Dashboard & Projector View
-| 11. Admin Dashboard — Table Management (1440×900) | 13. Live Projector View (1920×1080 Dark Theme) |
+### 4. Organizer Admin Dashboard & Live Projector View
+| Admin Dashboard — Waiting Pool (Light) | Admin Dashboard — Waiting Pool (Dark) |
 | :---: | :---: |
-| ![Admin Dashboard](docs/screens/11-admin-dashboard.png) | ![Projector View](docs/screens/13-projector-view.png) |
+| ![Admin Waiting Light](docs/screens/12-admin-waiting-light.png) | ![Admin Waiting Dark](docs/screens/12-admin-waiting-dark.png) |
 
-| 10. Admin Login | 12. Move Participant & Reset Confirmation Modals |
+| Admin Dashboard — Tables Distributed (Light) | Admin Dashboard — Tables Distributed (Dark) |
 | :---: | :---: |
-| ![Admin Login](docs/screens/10-admin-login.png) | ![Admin Dialogs](docs/screens/12-admin-dialogs.png) |
+| ![Admin Seated Light](docs/screens/13-admin-seated-light.png) | ![Admin Seated Dark](docs/screens/13-admin-seated-dark.png) |
+
+| Live Projector View (Table List — Fullscreen Dark Theme) |
+| :---: |
+| ![Projector View](docs/screens/14-projector-view.png) |
 
 ---
 
