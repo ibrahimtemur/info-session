@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { dev, getResult } from './api/client.js'
 import OfflineBanner from './components/OfflineBanner.jsx'
 import ThemeToggle from './components/ThemeToggle.jsx'
-import Icon, { GdgBrandMark, TonalIcon } from './components/Icon.jsx'
+import Icon, { DesignerCredit, GdgBrandMark, TonalIcon } from './components/Icon.jsx'
 import Welcome from './pages/Welcome.jsx'
 import Name from './pages/Name.jsx'
 import Quiz from './pages/Quiz.jsx'
@@ -59,7 +59,7 @@ function Participant() {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col px-5 pb-6 pt-4">
+    <div className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col px-5 pb-5 pt-4">
       <OfflineBanner />
       <header className="mb-4 flex items-center justify-between gap-2">
         <GdgBrandMark />
@@ -135,6 +135,8 @@ function Participant() {
           </button>
         </div>
       )}
+
+      {(step === 'welcome' || step === 'result') && <DesignerCredit />}
     </div>
   )
 }

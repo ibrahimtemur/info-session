@@ -12,7 +12,7 @@ import {
   seedParticipants,
 } from '../api/client.js'
 import ThemeToggle from '../components/ThemeToggle.jsx'
-import Icon, { GdgBrandMark, TonalIcon } from '../components/Icon.jsx'
+import Icon, { DesignerCredit, GdgBrandMark, TonalIcon } from '../components/Icon.jsx'
 import ConfirmDialog from '../components/admin/ConfirmDialog.jsx'
 import LoginForm from '../components/admin/LoginForm.jsx'
 import MoveDialog from '../components/admin/MoveDialog.jsx'
@@ -33,18 +33,21 @@ export default function Admin() {
   }, [])
 
   return (
-    <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 pt-4 sm:px-6 lg:px-8">
-      {authed ? (
-        <Dashboard onLogout={() => setAuthed(false)} />
-      ) : (
-        <>
-          <header className="flex items-center justify-between">
-            <GdgBrandMark />
-            <ThemeToggle />
-          </header>
-          <LoginForm onSuccess={() => setAuthed(true)} />
-        </>
-      )}
+    <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col justify-between px-4 pb-8 pt-4 sm:px-6 lg:px-8">
+      <div>
+        {authed ? (
+          <Dashboard onLogout={() => setAuthed(false)} />
+        ) : (
+          <>
+            <header className="flex items-center justify-between">
+              <GdgBrandMark />
+              <ThemeToggle />
+            </header>
+            <LoginForm onSuccess={() => setAuthed(true)} />
+          </>
+        )}
+      </div>
+      <DesignerCredit className="pt-8" />
     </div>
   )
 }
