@@ -14,18 +14,18 @@
 
 Bu proje, **GDG on Campus** topluluğunun bir kafede gerçekleştirdiği tanışma etkinliği (**Info Session**) için geliştirilmiş, **Türkçe ve İngilizce (`TR` / `EN`)** çift dil destekli, mobil öncelikli bir masa eşleştirme web uygulamasıdır. Katılımcılar telefonlarından 8 kısa soruluk anketi (1–2 dakika) yanıtlar; sistem verilen cevaplara göre katılımcıları hem ortak ilgi alanlarına sahip hem de çeşitlilik açısından dengeli masalara otomatik olarak yerleştirir. Organizatörler ise masaüstü **Admin Paneli** ve tam ekran **Projektör Görünümü** üzerinden etkinliği canlı olarak yönetir.
 
-Hem **Google / Material Design 3** tasarım diline sahip modern bir kullanıcı arayüzü (Frontend) hem de **Neon Postgres** tabanlı bir API (Backend) içerir. Canlı sürüm **Vercel + Neon** üzerinde çalışır.
+Hem **Google / Material Design 3** tasarım diline sahip modern bir kullanıcı arayüzü (Frontend) hem de **Neon Postgres** tabanlı bir API (Backend) içerir. Canlı sürüm **[gdg.algoforge.com.tr](https://gdg.algoforge.com.tr)** üzerinde aktiftir.
 
 ---
 
 ## Canlı Yayın & Hızlı Erişim
 
-Uygulama Vercel üzerinde aktiftir. Aşağıdaki bağlantılara tıklayarak veya QR kodları telefonunuzun kamerasıyla okutarak hemen deneyebilirsiniz:
+Uygulama canlıda aktiftir. Aşağıdaki bağlantılara tıklayarak veya QR kodları telefonunuzun kamerasıyla okutarak hemen deneyebilirsiniz:
 
 | Katılımcı Uygulaması (Masanı Bul) | Yönetici Paneli (Admin) |
 | :---: | :---: |
-| [![Info Session · Masanı Bul](docs/qr/qr-app.png)](https://info-session-psi.vercel.app/) | [![Admin · Info Session](docs/qr/qr-admin.png)](https://info-session-psi.vercel.app/admin) |
-| **[Info Session · Masanı Bul](https://info-session-psi.vercel.app/)** | **[Admin · Info Session](https://info-session-psi.vercel.app/admin)** |
+| [![Info Session · Masanı Bul](docs/qr/qr-app.png)](https://gdg.algoforge.com.tr/) | [![Admin · Info Session](docs/qr/qr-admin.png)](https://gdg.algoforge.com.tr/admin) |
+| **[gdg.algoforge.com.tr](https://gdg.algoforge.com.tr/)** | **[gdg.algoforge.com.tr/admin](https://gdg.algoforge.com.tr/admin)** |
 | *Katılımcıların 8 soruluk anketi doldurup masasını öğrendiği mobil ekran* | *Masa dağılımları, canlı doluluk, kişi taşıma/silme ve projektör görünümü* |
 
 ---
@@ -41,6 +41,7 @@ Uygulama Vercel üzerinde aktiftir. Aşağıdaki bağlantılara tıklayarak veya
 8. [Ortam Değişkenleri (.env)](#ortam-değişkenleri-env)
 9. [Eşleştirme Algoritması ve Etkinlik Akışı](#eşleştirme-algoritması-ve-etkinlik-akışı)
 10. [Canlıya Alma Rehberi (Deployment)](#canlıya-alma-rehberi-deployment)
+11. [Güvenlik ve Gizlilik](#güvenlik-ve-gizlilik)
 
 ---
 
@@ -262,7 +263,44 @@ Proje tek bir **Vercel** projesi olarak yayınlanır: frontend statik dosyalar, 
 3. **Ortam değişkenleri:** `ADMIN_PASSWORD` (güçlü bir parola) ve `VITE_USE_MOCK=false` ekleyin.
 4. **Bölge:** `vercel.json` içindeki `regions: ["fra1"]` fonksiyonları Frankfurt'a alır (Neon ile aynı bölge, düşük gecikme).
 5. **Deploy:** Git push ile otomatik ya da `npx vercel deploy --prod --yes` ile elle.
-6. **Kontrol:** `https://<proje>.vercel.app/api/health` → `{"status":"ok"}`.
+6. **Özel Alan Adı (Custom Domain):** Vercel panelinden `gdg.algoforge.com.tr` alan adı eklenmiş olup otomatik SSL/TLS sertifikası ile HTTPS üzerinden güvenli iletişim sağlanır.
+7. **Kontrol:** `https://gdg.algoforge.com.tr/api/health` → `{"status":"ok"}`.
+
+---
+
+## Güvenlik ve Gizlilik
+
+Proje ve kaynak kodları herkese açık (**Public**) olduğu için hem sunucu hem istemci katmanında güvenlik önlemleri alınmıştır:
+
+### 1. Açık Kaynak Güvenliği ve Ortam Değişkenleri
+- Gerçek veritabanı bağlantı adresleri (`DATABASE_URL`) ve yönetici parolaları (`ADMIN_PASSWORD`) asla git reposuna eklenmez.
+- `.gitignore` dosyası `.env`, `.env.local`, `.env*.local`, `backend/.env` ve veritabanı dosyalarını (`*.db*`) kapsayacak şekilde yapılandırılmıştır.
+- Yeni geliştiriciler ve kurulumlar için hassas bilgi içermeyen `.env.example` ve `backend/.env.example` şablonları sunulur.
+
+### 2. Yönetici (Admin) Kimlik Doğrulama & Brute-Force Koruması
+- **Rate Limiting:** `POST /api/admin/login` uç noktası IP bazlı hız sınırlamasına (`express-rate-limit`) sahiptir (15 dakikada en fazla 10 başarısız deneme).
+- **Zamanlama Saldırısı Koruması (Constant-Time Comparison):** Parola ve Bearer token kontrolleri `crypto.timingSafeEqual` ile SHA-256 hash'leri üzerinden sabit zamanda karşılaştırılır. Böylece olası zamanlama saldırıları (timing attack) engellenir.
+- **Güvenli Fallback:** Sunucu ortamında `ADMIN_PASSWORD` değişkeni tanımlanmamışsa hiçbir istek yetkilendirilmez ve sunucu 500 hata kodu döner (`undefined` eşleşmesi riski yoktur).
+
+### 3. HTTP Güvenlik Başlıkları (Security Headers)
+Hem Express API katmanında hem de Vercel CDN katmanında (`vercel.json`) şu güvenlik başlıkları aktiftir:
+- `X-Content-Type-Options: nosniff`: Tarayıcının MIME türlerini tahmin etmesini (sniffing) engeller.
+- `X-Frame-Options: DENY`: Sayfanın `<iframe>` içinde gösterilmesini engelleyerek Clickjacking saldırılarını önler.
+- `Referrer-Policy: strict-origin-when-cross-origin`: Dış kaynaklara hassas URL bilgisi aktarımını sınırlandırır.
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()`: Gereksiz donanım erişimlerini engeller.
+- `app.disable('x-powered-by')`: Sunucu türünün (Express) HTTP yanıt başlıklarında ifşa edilmesini (server fingerprinting) engeller.
+
+### 4. Girdi Doğrulama ve DoS Koruması
+- **Zod Şema Doğrulaması:** Katılımcı kayıtlarında isim uzunluğu, yasaklı kontrol karakterleri (`\r`, `\n`, `\0`), ilgi alanı enum değerleri ve soru puanları sunucu tarafında doğrulanır.
+- **JSON Boyut Sınırı:** Express gövde boyutu `100kb` ile sınırlandırılarak bellek tüketme (Memory DoS) saldırıları engellenir.
+- **Kayıt Hız Sınırı:** Katılımcı kayıt uç noktası (`POST /api/participants`) IP başına dakikada maksimum 60 istekle sınırlandırılmıştır.
+
+### 5. CSV Injection Koruması
+- Admin panelinden indirilen katılımcı listesinde Excel/Sheets formül enjeksiyonu (`=`, `+`, `-`, `@` ile başlayan girdiler) otomatik olarak kaçış karakteriyle (`'`) güvenli hale getirilir.
+
+### 6. Veri Gizliliği (KVKK / GDPR Yaklaşımı)
+- Etkinlikte yalnızca katılımcının belirlediği isim/rumuz ve 8 tanışma sorusu yanıtı tutulur.
+- E-posta adresi, telefon numarası veya kimlik bilgisi gibi hiçbir kişisel hassas veri (PII) talep edilmez ve saklanmaz.
 
 ---
 ---
@@ -275,18 +313,18 @@ Proje tek bir **Vercel** projesi olarak yayınlanır: frontend statik dosyalar, 
 
 **Info Session** is a mobile-first, bilingual (**Turkish & English — `TR` / `EN`**) table-matching web application built for a **GDG on Campus** community mixer event held in a café. Participants answer 8 short questions on their phone in 1–2 minutes, and the app seats them at a compatible, diverse table. Organizers manage the event live using a desktop **Admin Dashboard** and a full-screen **Projector View**.
 
-Built with a **Google / Material Design 3** frontend and a **Neon Postgres** serverless backend deployed on **Vercel**.
+Built with a **Google / Material Design 3** frontend and a **Neon Postgres** serverless backend deployed on **[gdg.algoforge.com.tr](https://gdg.algoforge.com.tr)**.
 
 ---
 
 ## Live Demo & Quick Access
 
-The app is live on Vercel. Click the links below or scan the QR codes with your phone camera:
+The app is live in production. Click the links below or scan the QR codes with your phone camera:
 
 | Participant App (Find Your Table) | Organizer Dashboard (Admin) |
 | :---: | :---: |
-| [![Info Session · Find Your Table](docs/qr/qr-app.png)](https://info-session-psi.vercel.app/) | [![Admin · Info Session](docs/qr/qr-admin.png)](https://info-session-psi.vercel.app/admin) |
-| **[Info Session · Find Your Table](https://info-session-psi.vercel.app/)** | **[Admin · Info Session](https://info-session-psi.vercel.app/admin)** |
+| [![Info Session · Find Your Table](docs/qr/qr-app.png)](https://gdg.algoforge.com.tr/) | [![Admin · Info Session](docs/qr/qr-admin.png)](https://gdg.algoforge.com.tr/admin) |
+| **[gdg.algoforge.com.tr](https://gdg.algoforge.com.tr/)** | **[gdg.algoforge.com.tr/admin](https://gdg.algoforge.com.tr/admin)** |
 | *Mobile flow where participants answer 8 short questions and discover their table* | *Table management, live occupancy, move/delete controls, and 1080p projector view* |
 
 ---
@@ -301,6 +339,7 @@ The app is live on Vercel. Click the links below or scan the QR codes with your 
 7. [Environment Variables (.env)](#environment-variables-env)
 8. [Matching Algorithm & Event Flow](#matching-algorithm--event-flow)
 9. [Deployment Guide](#deployment-guide)
+10. [Security & Privacy](#security--privacy)
 
 ---
 
@@ -448,7 +487,45 @@ Implemented in `src/lib/matching.js`:
 2. **Connect Neon Postgres:** Add the Neon integration from the Vercel Marketplace (`DATABASE_URL` is injected automatically).
 3. **Configure Environment Variables:** Set `ADMIN_PASSWORD` and `VITE_USE_MOCK=false`.
 4. **Region:** `vercel.json` pins serverless functions to `fra1` (Frankfurt) to match the Neon database region.
-5. **Verify:** Visit `https://<project>.vercel.app/api/health` → `{"status":"ok"}`.
+5. **Custom Domain:** Configured with `gdg.algoforge.com.tr` under Vercel domain settings with automatic SSL/TLS encryption.
+6. **Verify:** Visit `https://gdg.algoforge.com.tr/api/health` → `{"status":"ok"}`.
+
+---
+
+## Security & Privacy
+
+Since both the website and repository are publicly accessible (**Public Open Source**), security and privacy protections are enforced across both frontend and backend:
+
+### 1. Open Source Safety & Environment Isolation
+- Production database credentials (`DATABASE_URL`) and administrator secrets (`ADMIN_PASSWORD`) are never committed to source control.
+- `.gitignore` strictly ignores all local environment files (`.env`, `.env.local`, `.env*.local`, `backend/.env`) and database binaries (`*.db*`).
+- Clean templates (`.env.example` and `backend/.env.example`) are provided with non-sensitive placeholder configurations for contributors.
+
+### 2. Admin Authentication & Brute-Force Defense
+- **Rate Limiting:** `POST /api/admin/login` enforces an IP-based rate limiter via `express-rate-limit` (maximum 10 attempts per 15-minute window in production).
+- **Constant-Time Comparison:** Password and token checks utilize Node.js `crypto.timingSafeEqual` with SHA-256 hashes to mitigate side-channel timing attacks.
+- **Fail-Safe Server State:** If `ADMIN_PASSWORD` is absent from the host environment, requests are rejected with HTTP 500 rather than evaluating against `undefined`.
+
+### 3. HTTP Security Headers
+Configured across both Express API middleware and Vercel edge configuration (`vercel.json`):
+- `X-Content-Type-Options: nosniff`: Prevents MIME-type sniffing vulnerabilities.
+- `X-Frame-Options: DENY`: Blocks clickjacking by preventing `<iframe>` embedding.
+- `Referrer-Policy: strict-origin-when-cross-origin`: Restricts referrer data leakage.
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()`: Disables unused client hardware capabilities.
+- `app.disable('x-powered-by')`: Removes server fingerprinting headers.
+
+### 4. Input Validation & DoS Mitigation
+- **Zod Schema Validation:** Server-side validation restricts name length, filters control characters (`\r`, `\n`, `\0`), strictly checks interest enums, and validates quiz answer ranges.
+- **Payload Limits:** Maximum incoming JSON payload is capped at `100kb` to protect serverless instances against memory exhaustion attacks.
+- **Participant Rate Limit:** `POST /api/participants` is limited to 60 requests per minute per IP address.
+
+### 5. CSV Formula Injection Defense
+- Exported participant CSV data automatically quotes and escapes dangerous spreadsheet formula triggers (`=`, `+`, `-`, `@`) with single quotes (`'`) to protect organizers opening files in Microsoft Excel or Google Sheets.
+
+### 6. Participant Data Privacy
+- Only display names and 8 mixer quiz answers are stored.
+- No personal identifying information (PII) such as phone numbers, email addresses, or student IDs is collected.
+
 
 ---
 

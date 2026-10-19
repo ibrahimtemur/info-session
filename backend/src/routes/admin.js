@@ -1,15 +1,31 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { query } from '../db.js';
-import adminAuth from '../middleware/adminAuth.js';
+import adminAuth, { safeCompare } from '../middleware/adminAuth.js';
 import { rebalanceAll, resetDatabase, moveParticipant, seedParticipants, SeatingError } from '../services/placement.js';
 import { tableTheme, iceBreaker, TABLE_CAPACITY, MAX_SEATS } from '../shared/matching.js';
 
 const router = Router();
 
-router.post('/login', (req, res, next) => {
+// Brute-force saldırılarına karşı admin login rate limit'i
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 dakika
+  max: process.env['NODE_ENV'] === 'test' ? 1000 : 10, // test ortamında gevşek, üretimde 15 dk'da 10 deneme
+  message: { error: { code: 'rate_limit', message: 'Çok fazla başarısız giriş denemesi. Lütfen 15 dakika sonra tekrar deneyin.' } },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+router.post('/login', loginLimiter, (req, res, next) => {
   try {
-    const { password } = req.body;
-    if (password === process.env.ADMIN_PASSWORD) {
+    const { password } = req.body || {};
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminPassword) {
+      return res.status(500).json({ error: { code: 'server_error', message: 'Sunucu yapılandırma hatası: ADMIN_PASSWORD tanımlı değil' } });
+    }
+
+    if (typeof password === 'string' && safeCompare(password, adminPassword)) {
       res.json({ token: `admin-token-${password}` });
     } else {
       res.status(401).json({ error: { code: 'unauthorized', message: 'Hatalı parola' } });

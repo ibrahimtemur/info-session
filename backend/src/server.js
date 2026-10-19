@@ -15,15 +15,29 @@ import adminRouter from './routes/admin.js';
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Güvenlik: Sunucu kimliğini gizle (fingerprinting koruması)
+app.disable('x-powered-by');
+
 // Vercel/Render gibi proxy arkasında gerçek istemci IP'si (rate limit için) doğru okunsun
 app.set('trust proxy', 1);
+
+// Güvenlik başlıkları (Security Headers)
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  next();
+});
 
 // Vercel'de frontend ve API aynı alan adında olduğundan CORS gerekmez.
 // Yerel geliştirme veya ayrı alan adı için FRONTEND_ORIGIN (virgülle ayrılmış) tanımlanabilir.
 if (process.env.FRONTEND_ORIGIN) {
   app.use(cors({ origin: process.env.FRONTEND_ORIGIN.split(',').map((s) => s.trim()) }));
 }
-app.use(express.json());
+
+// DoS saldırılarına karşı gövde boyutunu 100kb ile sınırla
+app.use(express.json({ limit: '100kb' }));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });

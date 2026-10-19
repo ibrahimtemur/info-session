@@ -25,10 +25,23 @@ describe('Info Session API', () => {
     drink: 'coffee'
   };
 
-  it('GET /api/health should return ok', async () => {
+  it('GET /api/health should return ok and security headers', async () => {
     const res = await request(app).get('/api/health');
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('ok');
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+    expect(res.headers['x-frame-options']).toBe('DENY');
+    expect(res.headers['x-powered-by']).toBeUndefined();
+  });
+
+  it('POST /api/participants should reject invalid interest enum and bad name', async () => {
+    const res = await request(app).post('/api/participants').send({
+      name: 'Bad\nUser',
+      deviceId: 'bad-device',
+      answers: { ...validAnswers, interests: ['unknown_interest'] }
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('invalid_data');
   });
 
   let participantId;
@@ -74,10 +87,21 @@ describe('Info Session API', () => {
     adminToken = res.body.token;
   });
 
-  it('POST /api/admin/login should return 401 for invalid password', async () => {
-    const res = await request(app).post('/api/admin/login').send({
-      password: 'wrong'
-    });
+  it('POST /api/admin/login should return 401 for invalid or empty password', async () => {
+    const resWrong = await request(app).post('/api/admin/login').send({ password: 'wrong' });
+    expect(resWrong.status).toBe(401);
+
+    const resEmpty = await request(app).post('/api/admin/login').send({});
+    expect(resEmpty.status).toBe(401);
+
+    const resNonString = await request(app).post('/api/admin/login').send({ password: 12345 });
+    expect(resNonString.status).toBe(401);
+  });
+
+  it('adminAuth should reject forged or invalid tokens', async () => {
+    const res = await request(app)
+      .post('/api/admin/rebalance')
+      .set('Authorization', 'Bearer forged-token-abc');
     expect(res.status).toBe(401);
   });
 

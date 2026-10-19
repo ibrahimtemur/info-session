@@ -15,12 +15,17 @@ const limiter = rateLimit({
 });
 
 const participantSchema = z.object({
-  name: z.string().trim().min(1).max(60),
-  deviceId: z.string().optional(),
+  name: z
+    .string()
+    .trim()
+    .min(1)
+    .max(60)
+    .refine((val) => !/[\r\n\t\0]/.test(val), { message: 'İsim geçersiz karakterler içeremez' }),
+  deviceId: z.string().trim().max(100).optional(),
   answers: z.object({
     crowd: z.number().int().min(1).max(5),
     starter: z.number().int().min(1).max(5),
-    interests: z.array(z.string()).max(2),
+    interests: z.array(z.enum(['tech', 'art', 'sport', 'startup', 'musicGame'])).max(2),
     style: z.enum(['listener', 'talker', 'funny']),
     goal: z.enum(['network', 'friend', 'learn']),
     dept: z.enum(['engineering', 'business', 'design', 'science', 'social', 'other']).optional(),
@@ -62,11 +67,12 @@ router.post('/', limiter, async (req, res, next) => {
   try {
     const parseResult = participantSchema.safeParse(req.body);
     if (!parseResult.success) {
+      const issues = parseResult.error.issues || parseResult.error.errors || [];
       return res.status(400).json({
         error: {
           code: 'invalid_data',
           message: 'Geçersiz veri',
-          details: { fields: parseResult.error.errors.map(e => e.path.join('.')) }
+          details: { fields: issues.map(e => (Array.isArray(e.path) ? e.path.join('.') : '')) }
         }
       });
     }
